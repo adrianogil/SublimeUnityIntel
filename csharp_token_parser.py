@@ -28,7 +28,7 @@ class CSharpTokenParser:
             line_size = len(content[i])
 
             for j in range(0, line_size):
-                if not inside_stream_comments and self.is_inside_stream_comment(content[i], j):
+                if not inside_string and not inside_stream_comments and self.is_inside_stream_comment(content[i], j):
                     inside_stream_comments = True
                 elif inside_stream_comments and self.is_outside_stream_comment(content[i], j):
                     inside_stream_comments = False
