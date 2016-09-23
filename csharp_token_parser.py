@@ -1,9 +1,19 @@
-import os
+import sys, os
 import fnmatch
 from os.path import join
 
 import codecs
 
+__file__ = os.path.normpath(os.path.abspath(__file__))
+__path__ = os.path.dirname(__file__)
+
+# print(__path__)
+
+if __path__ not in sys.path:
+    sys.path.insert(0, __path__)
+
+from csharp_instance import CSharpInstance
+import csharp_type
 
 class CSharpTokenParser:
     def parse_file(self, csharp_file):
@@ -13,6 +23,7 @@ class CSharpTokenParser:
 
         #tokenize
         tokens = []
+        semantic_tokens = []
 
         enclosure_position = []
         enclosure_elements = {}
@@ -23,6 +34,11 @@ class CSharpTokenParser:
         inside_string = False
         inside_stream_comments = False
         string_element = ''
+
+        def add_token(t):
+            tokens.append(t)
+            semantic_tokens.append(t)
+
 
         for i in range(0, total_lines):
             line_size = len(content[i])
@@ -37,22 +53,31 @@ class CSharpTokenParser:
                 elif inside_string and content[i][j] == string_element:
                     inside_string = False
                     string_element = ''
+                    string_instance = CSharpInstance('literal_instance', csharp_type.get_string(), \
+                                                     [content[i][j], current_token, content[i][j]], len(tokens)-1)
+                    
+                    semantic_tokens.append(string_instance)
+                    semantic_tokens.append(string_instance)
+                    semantic_tokens.append(string_instance)
+
+                    tokens.append(current_token)
                     tokens.append(content[i][j])
+                    current_token = ''
                 elif content[i][j] == "\"" or content[i][j] == "\'":
                     inside_string = True
                     string_element = content[i][j]
                     tokens.append(content[i][j])
                 elif not inside_string and self.is_inside_inline_comment(content[i], j):
                     break
-                elif self.is_empty(content[i][j]):
+                elif not inside_string and self.is_empty(content[i][j]):
                     if current_token != '':
-                        tokens.append(current_token)
+                        add_token(current_token)
                         current_token = ''
                 elif not inside_string and self.is_special_token(content[i][j]):
                     if current_token != '':
-                        tokens.append(current_token)
+                        add_token(current_token)
                         current_token = ''
-                    tokens.append("" + content[i][j])
+                    add_token("" + content[i][j])
                 else:
                     current_token = current_token + content[i][j]
 
@@ -76,9 +101,11 @@ class CSharpTokenParser:
                     enclosure_elements[opposite_enclosure[tokens[t]]] = list
                     enclosure_position[pos] = t
                     enclosure_position[t] = pos
-                    print('Match ' + tokens[pos] + " and " + tokens[t])
+                    # print('Match ' + tokens[pos] + " and " + tokens[t])
 
-        token_data = { "tokens" : tokens, 'enclosure_position' : enclosure_position}
+        token_data = { "tokens" : tokens, \
+                      'enclosure_position' : enclosure_position, \
+                      'semantic_tokens': semantic_tokens}
 
         return token_data
     def is_empty(self, char_content):
@@ -100,6 +127,7 @@ class CSharpTokenParser:
 
     def is_special_token(self, char_content):
         return char_content == '.' or \
+            char_content == ',' or \
             char_content == '{' or \
             char_content == '}' or \
             char_content == '(' or \

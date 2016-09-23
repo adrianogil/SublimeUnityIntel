@@ -16,25 +16,17 @@ from csharp_element import CSharpElement
 from csharp_token_parser import CSharpTokenParser
 
 import csharp_importer_parser
-
-class CSharpType(CSharpElement):
-    type_name = ""
-
-class CSharpTypeMember(CSharpElement):
-    member_name = ""
-    member_type = "type_definition" # type_definition, type_instance, method
-
-class CSharpInstance(CSharpElement):
-    instance_type = CSharpType('', [])
+import csharp_class_parser
 
 class CSharpParser:
     symbols = {}
     def parse_file(self, csharp_file):
         tokens_data = CSharpTokenParser().parse_file(csharp_file)
 
-        tokens_data['parsed_tokens'] = tokens_data['tokens']
+        print(tokens_data)
 
         tokens_data = csharp_importer_parser.parse_tokens(tokens_data)
+        tokens_data = csharp_class_parser.parse_tokens(tokens_data)
 
         print(tokens_data)
             

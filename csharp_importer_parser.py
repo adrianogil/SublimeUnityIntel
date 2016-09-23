@@ -13,42 +13,48 @@ from csharp_element import CSharpElement
 class CSharpImporter(CSharpElement):
     imported_namespace = ""
 
-    def __init__(self, csharp_namespace, tokens):
-        super(CSharpImporter, self).__init__('importer', tokens)
+    def __init__(self, csharp_namespace, tokens, token_pos):
+        super(CSharpImporter, self).__init__('importer', tokens, token_pos)
         self.imported_namespace = csharp_namespace
 
 def parse_tokens(tokens_data):
 
-    tokens = tokens_data['parsed_tokens']
-
-    parsed_tokens = []
+    tokens = tokens_data['tokens']
+    semantic_tokens = tokens_data['semantic_tokens']
 
     total_tokens = len(tokens)
 
     inside_using = False
     current_imported_namespace = ''
     importer_tokens = []
+    start_using_token_pos = -1
 
     for t in range(0, total_tokens):
+        # Can't consider importers inside strings
+        if isinstance(semantic_tokens[t], CSharpElement):
+            continue
         if not inside_using and is_using_token(tokens[t]):
             inside_using = True
+            start_using_token_pos = t
             importer_tokens.append(tokens[t])
-        elif not inside_using:
-            parsed_tokens.append(tokens[t])
         elif inside_using and tokens[t] == ';':
             inside_using = False
             
             importer_tokens.append(tokens[t])
-            
-            parsed_tokens.append(CSharpImporter(current_imported_namespace, importer_tokens))
+            print(current_imported_namespace)
+            importer_instance = CSharpImporter(current_imported_namespace, importer_tokens, start_using_token_pos)
+
+            for s in range(start_using_token_pos, t+1):
+                semantic_tokens[s] = importer_instance
 
             current_imported_namespace = ''
+            start_using_token_pos = -1
             importer_tokens = []
         elif inside_using:
             current_imported_namespace = current_imported_namespace + tokens[t]
             importer_tokens.append(tokens[t])
 
-    tokens_data['parsed_tokens'] = parsed_tokens
+    tokens_data['semantic_tokens'] = semantic_tokens
 
     return tokens_data
 
