@@ -21,6 +21,7 @@ def parse_tokens(tokens_data, class_region):
     return_type = ''
     method_name = ''
     expected_method = False
+    is_static_method = False
 
     start_region = class_region[0]
     end_region = class_region[1]
@@ -30,14 +31,25 @@ def parse_tokens(tokens_data, class_region):
     while t < end_region:
         
         if tokens[t] == '(' and tokens[enclosure_position[t]+1] == '{':
-            if t > 2 and is_access_modifier(tokens[t-3]):
+            if t > 3 and is_access_modifier(tokens[t-4]) and is_static_modifier(tokens[t-3]):
+                method_access_level = tokens[t-4]
+                is_static_method = True
+            elif t > 2 and is_access_modifier(tokens[t-3]):
                 method_access_level = tokens[t-3]
+            elif t > 2 and is_static_modifier(tokens[t-3]):
+                method_access_level = 'default'
+                is_static_method = True
             else:
                 method_access_level = 'default'
+
             return_type = tokens[t-2]
             method_name = tokens[t-1]
             t = enclosure_position[enclosure_position[t]+1]
-            print('Found method ' + method_name + " with return type '" + return_type + "' and access level " + method_access_level)
+            if is_static_method:
+                print('Found static method ' + method_name + " with return type '" + return_type + "' and access level " + method_access_level)
+            else:
+                print('Found method ' + method_name + " with return type '" + return_type + "' and access level " + method_access_level)
+            is_static_method = False
         else:
             t = t + 1
 
@@ -46,6 +58,15 @@ def parse_tokens(tokens_data, class_region):
 
 def is_access_modifier(token):
     return is_public_modifier(token) or is_private_modifier(token) or is_protected_modifier(token)
+
+def is_static_modifier(token):
+    return len(token) == 6 and \
+        token[0] == 's' and \
+        token[1] == 't' and \
+        token[2] == 'a' and \
+        token[3] == 't' and \
+        token[4] == 'i' and \
+        token[5] == 'c'
 
 def is_public_modifier(token):
     return len(token) == 6 and \
