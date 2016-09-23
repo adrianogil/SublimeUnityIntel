@@ -10,6 +10,8 @@ if __path__ not in sys.path:
 
 from csharp_element import CSharpElement
 
+import csharp_class_body_parser
+
 class CSharpClass(CSharpElement):
     class_name = ''
 
@@ -38,6 +40,7 @@ def parse_tokens(tokens_data):
             print('Class identified: ' + class_name + " with baseclass/interfaces: " + str(classinfo_tokens))
             class_name = ''
             classinfo_tokens = []
+            tokens_data = csharp_class_body_parser.parse_tokens(tokens_data, (t+1, tokens_data['enclosure_position'][t]))
         elif class_identified and len(classinfo_tokens) > 0 and tokens[t] == ',':
             classinfo_expected = True
         elif class_identified and classinfo_expected:
@@ -45,7 +48,7 @@ def parse_tokens(tokens_data):
             classinfo_expected = False
         if class_identified and tokens[t] == ':':
             classinfo_expected = True
-        elif is_access_modifier(tokens[t-2]) and is_class_keyword(tokens[t-1]):
+        elif t > 2 and is_access_modifier(tokens[t-2]) and is_class_keyword(tokens[t-1]):
             class_name = tokens[t]
             class_identified = True
         elif is_class_keyword(tokens[t-1]):
