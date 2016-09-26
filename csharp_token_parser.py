@@ -25,6 +25,8 @@ class CSharpTokenParser:
         tokens = []
         semantic_tokens = []
 
+        token_position = []
+
         enclosure_position = []
         enclosure_elements = {}
         opposite_enclosure = {'}':'{', ')':'(', ']':'[', '\'':'\'', '\"':'\"' }
@@ -35,9 +37,10 @@ class CSharpTokenParser:
         inside_stream_comments = False
         string_element = ''
 
-        def add_token(t):
+        def add_token(t, pos):
             tokens.append(t)
             semantic_tokens.append(t)
+            token_position.append(pos)
 
 
         for i in range(0, total_lines):
@@ -62,6 +65,7 @@ class CSharpTokenParser:
 
                     tokens.append(current_token)
                     tokens.append(content[i][j])
+                    token_position.append((i,j))
                     current_token = ''
                 elif content[i][j] == "\"" or content[i][j] == "\'":
                     inside_string = True
@@ -71,13 +75,13 @@ class CSharpTokenParser:
                     break
                 elif not inside_string and self.is_empty(content[i][j]):
                     if current_token != '':
-                        add_token(current_token)
+                        add_token(current_token, (i,j))
                         current_token = ''
                 elif not inside_string and self.is_special_token(content[i][j]):
                     if current_token != '':
-                        add_token(current_token)
+                        add_token(current_token, (i,j))
                         current_token = ''
-                    add_token("" + content[i][j])
+                    add_token("" + content[i][j], (i, j))
                 else:
                     current_token = current_token + content[i][j]
 
@@ -105,7 +109,8 @@ class CSharpTokenParser:
 
         token_data = { "tokens" : tokens, \
                       'enclosure_position' : enclosure_position, \
-                      'semantic_tokens': semantic_tokens}
+                      'semantic_tokens': semantic_tokens, \
+                      'token_position': token_position}
 
         return token_data
     def is_empty(self, char_content):

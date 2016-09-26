@@ -23,12 +23,12 @@ class CSharpParser:
     def parse_file(self, csharp_file):
         tokens_data = CSharpTokenParser().parse_file(csharp_file)
 
-        print(tokens_data)
+        # print(tokens_data)
 
         tokens_data = csharp_importer_parser.parse_tokens(tokens_data)
         tokens_data = csharp_class_parser.parse_tokens(tokens_data)
 
-        print(tokens_data)
+        # print(tokens_data)
             
 
 
