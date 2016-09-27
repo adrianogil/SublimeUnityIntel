@@ -10,6 +10,15 @@ if __path__ not in sys.path:
 
 from csharp_element import CSharpElement
 
+class CSharpClassParamMethod(CSharpElement):
+    param_name = ''
+    param_type = ''
+    param_default_value = ''
+
+    def __init__(self, csharp_param_name, tokens, token_pos):
+        super(CSharpClassParamMethod, self).__init__('importer', tokens, token_pos)
+        self.param_name = csharp_param_name
+
 # class_region = (token_start, token_end) of enclosure class
 def parse_tokens(tokens_data, class_region):
 
@@ -17,10 +26,14 @@ def parse_tokens(tokens_data, class_region):
     semantic_tokens = tokens_data['semantic_tokens']
     enclosure_position = tokens_data['enclosure_position']
 
+    params_data = []
+
     start_region = class_region[0]
     end_region = class_region[1]
 
     t = start_region
+
+    start_method_pos = -1
 
     parameter_type = ''
     parameter_name = ''
@@ -32,11 +45,21 @@ def parse_tokens(tokens_data, class_region):
 
     number_of_parameters = 0
 
+    def create_method_instance(t):
+        method_instance = CSharpClassParamMethod(parameter_name, \
+                                                 tokens[start_method_pos:t], \
+                                                 start_method_pos)
+        method_instance.param_type = parameter_type
+        method_instance.param_default_value = parameter_default_value
+        params_data.append(method_instance)
+
+
     while t < end_region:
 
         if tokens[t] == ',':
             # New parameter
             print('\t - parameter ' + parameter_name + " with type " + parameter_type)
+            create_method_instance(t)
             parameter_type = ''
             parameter_name = ''
             parameter_default_value = ''
@@ -52,6 +75,7 @@ def parse_tokens(tokens_data, class_region):
             parameter_name = tokens[t]
             parameter_name_found = True
         else:
+            start_method_pos = t
             number_of_parameters = number_of_parameters + 1
             parameter_type = tokens[t]
             parameter_type_found = True
@@ -60,6 +84,9 @@ def parse_tokens(tokens_data, class_region):
 
     if number_of_parameters > 0:
         print('\t - parameter ' + parameter_name + " with type " + parameter_type)
+        create_method_instance(t)
+
+    tokens_data['params_data'] = params_data
 
     return tokens_data
 

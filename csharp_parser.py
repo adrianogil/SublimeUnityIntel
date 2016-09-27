@@ -29,6 +29,16 @@ class CSharpParser:
         tokens_data = csharp_class_parser.parse_tokens(tokens_data)
 
         # print(tokens_data)
+
+        parser_data = { \
+            'by_files': { \
+                csharp_file: { \
+                    'classes': tokens_data['classes'] \
+                } \
+            } \
+        }
+
+        return parser_data
             
 
 

@@ -66,11 +66,13 @@ class CSharpTokenParser:
                     tokens.append(current_token)
                     tokens.append(content[i][j])
                     token_position.append((i,j))
+                    token_position.append((i,j))
                     current_token = ''
                 elif content[i][j] == "\"" or content[i][j] == "\'":
                     inside_string = True
                     string_element = content[i][j]
                     tokens.append(content[i][j])
+                    token_position.append((i,j))
                 elif not inside_string and self.is_inside_inline_comment(content[i], j):
                     break
                 elif not inside_string and self.is_empty(content[i][j]):

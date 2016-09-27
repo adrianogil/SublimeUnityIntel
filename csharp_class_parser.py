@@ -14,12 +14,20 @@ import csharp_class_body_parser
 
 class CSharpClass(CSharpElement):
     class_name = ''
+    methods_data = []
 
-def parse_tokens(tokens_data):
+    def __init__(self, csharp_class_name, tokens, token_pos):
+        super(CSharpClass, self).__init__('importer', tokens, token_pos)
+        self.class_name = csharp_class_name
+
+def  parse_tokens(tokens_data):
     tokens = tokens_data['tokens']
     semantic_tokens = tokens_data['semantic_tokens']
+    positions = tokens_data['token_position']
 
     total_tokens = len(tokens)
+
+    classes_data = []
 
     class_name = ''
 
@@ -29,6 +37,8 @@ def parse_tokens(tokens_data):
 
     classinfo_tokens = []
 
+    start_class_pos = 0
+
     for t in range(1, total_tokens):
         # Can't consider importers inside strings
         if isinstance(semantic_tokens[t], CSharpElement):
@@ -37,10 +47,19 @@ def parse_tokens(tokens_data):
         if class_identified and tokens[t] == '{':
             class_identified = False
             classinfo_expected = False
+
+            class_end_position = tokens_data['enclosure_position'][t]
+
             print('Class identified: ' + class_name + " with baseclass/interfaces: " + str(classinfo_tokens))
+            tokens_data = csharp_class_body_parser.parse_tokens(tokens_data, (t+1, tokens_data['enclosure_position'][t]))
+            class_instance = CSharpClass(class_name, tokens[t:class_end_position], class_end_position)
+            class_instance.line_in_file = positions[start_class_pos][0]
+            class_instance.methods_data = tokens_data['method_data']
+            classes_data.append(class_instance)
+
             class_name = ''
             classinfo_tokens = []
-            tokens_data = csharp_class_body_parser.parse_tokens(tokens_data, (t+1, tokens_data['enclosure_position'][t]))
+            
         elif class_identified and len(classinfo_tokens) > 0 and tokens[t] == ',':
             classinfo_expected = True
         elif class_identified and classinfo_expected:
@@ -50,12 +69,14 @@ def parse_tokens(tokens_data):
             classinfo_expected = True
         elif t > 2 and is_access_modifier(tokens[t-2]) and is_class_keyword(tokens[t-1]):
             class_name = tokens[t]
+            start_class_pos = t-2
             class_identified = True
         elif is_class_keyword(tokens[t-1]):
             class_name = tokens[t]
+            start_class_pos = t-2
             class_identified = True
 
-
+    tokens_data['classes'] = classes_data
 
     return tokens_data
 
