@@ -13,6 +13,8 @@ if __path__ not in sys.path:
 
 from csharp_parser import CSharpParser
 
+intel_data = {}
+
 class SublimeUnityIntel(sublime_plugin.EventListener):
     def on_load(self, view):
         current_file = view.file_name()
@@ -22,6 +24,9 @@ class SublimeUnityIntel(sublime_plugin.EventListener):
         if current_file is None or not current_file.lower().endswith('.cs'):
             return
 
+        parser = CSharpParser()
+        intel_data['parse'] = parser.parse_file(current_file)
+
         
 
 class OutlineCommand(sublime_plugin.TextCommand):
@@ -30,10 +35,11 @@ class OutlineCommand(sublime_plugin.TextCommand):
         view = self.view
         current_file = view.file_name()
 
-        parser = CSharpParser()
-        parser_data = parser.parse_file(current_file)
+        # parser = CSharpParser()
+        # parser_data = parser.parse_file(current_file)
+        # classes_data = parser_data['by_files'][current_file]['classes']
 
-        classes_data = parser_data['by_files'][current_file]['classes']
+        classes_data = intel_data['parse']['by_files'][current_file]['classes']
 
 
         def go_to_reference(line):
@@ -56,11 +62,11 @@ class OutlineCommand(sublime_plugin.TextCommand):
                 class_outline = class_outline + '<br>'
             class_outline = class_outline + '<a href="' + str(c.line_in_file) + '">Class ' + c.class_name + '</a>'
             for m in c.methods_data:
-                class_outline = class_outline + '<a href="' + str(m.line_in_file) + '">Class ' + m.method_name + '</a>'
+                class_outline = class_outline + '<br>'
+                class_outline = class_outline + m.print_outline()
             index = index + 1
 
-        print(class_outline)
-
+        # print(class_outline)
         view.show_popup(class_outline, on_navigate=go_to_reference)
 
 

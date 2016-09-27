@@ -1,4 +1,32 @@
 
+def is_base_keyword(token):
+    return len(token) == 4 and \
+        token[0] == 'b' and \
+        token[1] == 'a' and \
+        token[2] == 's' and \
+        token[3] == 'e'
+
+def is_override_modifier(token):
+    return len(token) == 8 and \
+        token[0] == 'o' and \
+        token[1] == 'v' and \
+        token[2] == 'e' and \
+        token[3] == 'r' and \
+        token[4] == 'r' and \
+        token[5] == 'i' and \
+        token[6] == 'd' and \
+        token[7] == 'e'
+
+def is_virtual_modifier(token):
+    return len(token) == 7 and \
+        token[0] == 'v' and \
+        token[1] == 'i' and \
+        token[2] == 'r' and \
+        token[3] == 't' and \
+        token[4] == 'u' and \
+        token[5] == 'a' and \
+        token[6] == 'l'
+
 def is_access_modifier(token):
     return is_public_modifier(token) or is_private_modifier(token) or is_protected_modifier(token)
 

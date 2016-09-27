@@ -13,7 +13,7 @@ from csharp_element import CSharpElement
 import csharp_utils
 
 # class_region = (token_start, token_end) of enclosure class
-def parse_tokens(tokens_data, class_region):
+def parse_tokens(tokens_data, class_region, class_name):
 
     tokens = tokens_data['tokens']
     semantic_tokens = tokens_data['semantic_tokens']
