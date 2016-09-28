@@ -116,7 +116,7 @@ class CSharpTokenParser:
 
         return token_data
     def is_empty(self, char_content):
-        return char_content == ' ' or char_content == '\n'
+        return char_content == ' ' or char_content == '\n' or char_content == '\t'
 
     def is_opening_element(self, char_content):
         return char_content == '{' or \

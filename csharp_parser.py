@@ -31,11 +31,7 @@ class CSharpParser:
         # print(tokens_data)
 
         parser_data = { \
-            'by_files': { \
-                csharp_file: { \
                     'classes': tokens_data['classes'] \
-                } \
-            } \
         }
 
         return parser_data

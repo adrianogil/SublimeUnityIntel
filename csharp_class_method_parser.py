@@ -34,7 +34,8 @@ class CSharpClassMethod(CSharpElement):
             access_notation = '# '
         elif self.method_access_level == 'private':
             access_notation = '- '
-        return '    <a href="' + str(self.line_in_file) + '">' + access_notation + 'method ' + self.method_name + '</a>'
+        return '    <a href="' + str(self.line_in_file) + '">' + \
+                access_notation + 'method ' + self.method_name + '</a>'
 
 # class_region = (token_start, token_end) of enclosure class
 def parse_tokens(tokens_data, class_region, class_name):

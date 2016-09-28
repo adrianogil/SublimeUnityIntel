@@ -13,10 +13,14 @@ if __path__ not in sys.path:
 
 from csharp_parser import CSharpParser
 
-intel_data = {}
+intel_data = { \
+    'parse': { \
+        'by_files' : {} \
+    } \
+}
 
 class SublimeUnityIntel(sublime_plugin.EventListener):
-    def on_load(self, view):
+    def on_activated_async(self, view):
         current_file = view.file_name()
 
         print(current_file)
@@ -25,7 +29,8 @@ class SublimeUnityIntel(sublime_plugin.EventListener):
             return
 
         parser = CSharpParser()
-        intel_data['parse'] = parser.parse_file(current_file)
+        intel_data['parse']['by_files'][current_file] = \
+             parser.parse_file(current_file)
 
         
 
