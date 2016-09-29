@@ -6,35 +6,31 @@ import codecs
 
 __file__ = os.path.normpath(os.path.abspath(__file__))
 __path__ = os.path.dirname(__file__)
-
-# print(__path__)
+__csharp_path__ = join(__path__, 'csharp')
+print(__csharp_path__)
 
 if __path__ not in sys.path:
     sys.path.insert(0, __path__)
+if __csharp_path__ not in sys.path:
+    sys.path.insert(0, __csharp_path__)
 
-from csharp_element import CSharpElement
-from csharp_token_parser import CSharpTokenParser
+from token_parser import TokenParser
 
-import csharp_importer_parser
-import csharp_class_parser
+from csharp.csharp_element import CSharpElement
+from csharp import csharp_importer_parser
+from csharp import csharp_class_parser
 
-class CSharpParser:
+class SymbolicParser:
     symbols = {}
     def parse_file(self, csharp_file):
-        tokens_data = CSharpTokenParser().parse_file(csharp_file)
+        tokens_data = TokenParser().parse_file(csharp_file)
 
         # print(tokens_data)
 
         tokens_data = csharp_importer_parser.parse_tokens(tokens_data)
         tokens_data = csharp_class_parser.parse_tokens(tokens_data)
 
-        # print(tokens_data)
+        return tokens_data
 
-        parser_data = { \
-                    'classes': tokens_data['classes'] \
-        }
-
-        return parser_data
-            
 
 

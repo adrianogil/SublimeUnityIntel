@@ -2,16 +2,20 @@ import sublime, sublime_plugin
 import os
 import sys
 
-__file__ = os.path.normpath(os.path.abspath(__file__))
-__path__ = os.path.dirname(__file__)
+
 
 # print(__path__)
 
-
+__file__ = os.path.normpath(os.path.abspath(__file__))
+__path__ = os.path.dirname(__file__)
+__parser_path__ = os.path.join(__path__, 'unityparser')
 if __path__ not in sys.path:
     sys.path.insert(0, __path__)
+# print(__parser_path__)
+if __parser_path__ not in sys.path:
+    sys.path.insert(0, __parser_path__)
 
-from csharp_parser import CSharpParser
+from unityparser.parser import SymbolicParser
 
 intel_data = { \
     'parse': { \
@@ -28,11 +32,14 @@ class SublimeUnityIntel(sublime_plugin.EventListener):
         if current_file is None or not current_file.lower().endswith('.cs'):
             return
 
-        parser = CSharpParser()
+        symbolicParser = SymbolicParser()
         intel_data['parse']['by_files'][current_file] = \
-             parser.parse_file(current_file)
+             symbolicParser.parse_file(current_file)
 
-        
+
+class DebugintelCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        print(intel_data)
 
 class OutlineCommand(sublime_plugin.TextCommand):
     def run(self, edit):
@@ -65,10 +72,7 @@ class OutlineCommand(sublime_plugin.TextCommand):
         for c in classes_data:
             if index > 0:
                 class_outline = class_outline + '<br>'
-            class_outline = class_outline + '<a href="' + str(c.line_in_file) + '">Class ' + c.class_name + '</a>'
-            for m in c.methods_data:
-                class_outline = class_outline + '<br>'
-                class_outline = class_outline + m.print_outline()
+            class_outline = class_outline + c.print_outline()
             index = index + 1
 
         # print(class_outline)

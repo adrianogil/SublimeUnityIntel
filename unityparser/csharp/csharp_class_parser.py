@@ -20,6 +20,13 @@ class CSharpClass(CSharpElement):
         super(CSharpClass, self).__init__('importer', tokens, token_pos)
         self.class_name = csharp_class_name
 
+    def print_outline(self):
+        class_outline = '<a href="' + str(self.line_in_file) + '">Class ' + self.class_name + '</a>'
+        for m in self.methods_data:
+            class_outline = class_outline + '<br>'
+            class_outline = class_outline + m.print_outline()
+        return class_outline
+
 def  parse_tokens(tokens_data):
     tokens = tokens_data['tokens']
     semantic_tokens = tokens_data['semantic_tokens']
@@ -43,7 +50,7 @@ def  parse_tokens(tokens_data):
         # Can't consider importers inside strings
         if isinstance(semantic_tokens[t], CSharpElement):
             continue
-        
+
         if class_identified and tokens[t] == '{':
             class_identified = False
             classinfo_expected = False
@@ -59,7 +66,7 @@ def  parse_tokens(tokens_data):
 
             class_name = ''
             classinfo_tokens = []
-            
+
         elif class_identified and len(classinfo_tokens) > 0 and tokens[t] == ',':
             classinfo_expected = True
         elif class_identified and classinfo_expected:

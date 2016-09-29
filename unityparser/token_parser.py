@@ -11,11 +11,12 @@ __path__ = os.path.dirname(__file__)
 
 if __path__ not in sys.path:
     sys.path.insert(0, __path__)
+    sys.path.insert(0, join(__path__, 'csharp'))
 
 from csharp_instance import CSharpInstance
 import csharp_type
 
-class CSharpTokenParser:
+class TokenParser:
     def parse_file(self, csharp_file):
         with codecs.open(csharp_file, encoding="utf-8-sig") as f:
             content = f.readlines()
@@ -58,7 +59,7 @@ class CSharpTokenParser:
                     string_element = ''
                     string_instance = CSharpInstance('literal_instance', csharp_type.get_string(), \
                                                      [content[i][j], current_token, content[i][j]], len(tokens)-1)
-                    
+
                     semantic_tokens.append(string_instance)
                     semantic_tokens.append(string_instance)
                     semantic_tokens.append(string_instance)
@@ -167,6 +168,6 @@ class CSharpTokenParser:
         line_size = len(line)
         return pos > 0 and \
             line[pos-1] == '*' and \
-            line[pos] == '/'    
+            line[pos] == '/'
 
 
