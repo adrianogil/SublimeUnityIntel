@@ -57,8 +57,31 @@ class SymbolicParser:
     def debugself(self):
         print('debugself')
 
-    def print_selection_info(self):
-        print("print_selection_info")
+    def print_selection_info(self, view):
+        file = view.file_name()
+
+        def open_file(file):
+            view.window().open_file(file)
+
+        def go_to_reference(id):
+            if view.window().active_view():
+                row = self.symbolic_data['parse']['by_files'][file]['row_by_id'][id]
+                col = 1
+                print("Trying to go to line " + str(row))
+                view.window().active_view().run_command(
+                        "goto_row_col",
+                        {"row": row, "col": col}
+                )
+
+        def show_popup(text, action):
+            view.show_popup(text, on_navigate=action)
+
+        for region in view.sel():
+            selected_text = view.substr(region)
+
+            if not yaml_parser.print_yaml_file_info(file, selected_text, self.symbolic_data['parse'], open_file, show_popup):
+                if not yaml_parser.print_yaml_gameobject_info(file, selected_text, self.symbolic_data['parse'], go_to_reference, show_popup):
+                    yaml_parser.print_yaml_transform_info(file, selected_text, self.symbolic_data['parse'], go_to_reference, show_popup)
 
     # Print outline for current file
     # @param show_outline - method to exhibit outline
@@ -79,6 +102,3 @@ class SymbolicParser:
 
             # print(class_outline)
             show_outline(text_outline)
-
-
-

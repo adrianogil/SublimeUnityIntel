@@ -138,51 +138,32 @@ def get_all_guid_files(project_path, file_path):
 
     return yaml_data
 
-def on_selection_modified_async(self, view):
-    current_file = view.file_name()
+def print_yaml_file_info(file, selected_text, parser_data, open_file, show_info):
+    if selected_text in parser_data['yaml']['files_by_guid']:
+        show_info('<b>' + parser_data['yaml']['relative_path_by_guid'][selected_text] + \
+                   '</b><br><a href="' + parser_data['yaml']['files_by_guid'][selected_text] + \
+                   '">Open</a>', open_file)
+        return True
+    return False
 
-    if current_file is None or (not current_file.lower().endswith(('.unity', '.prefab', '.meta'))):
-        return
+def print_yaml_gameobject_info(file, selected_text, parser_data, go_to_reference, show_info):
+    if selected_text in  parser_data['by_files'][file]['gameobject_name_by_id']:
+        popup_text = '<b>GameObject: ' + parser_data['by_files'][file]['gameobject_name_by_id'][selected_text] + \
+            '</b><br><a href="' + selected_text + '">Show definition </a> <br>' + \
+                    '<a href="'+ parser_data['by_files'][file]['transform_id_by_gameobject_id'][selected_text] + \
+                    '">Show Transform component</a>'
+        show_info(popup_text, go_to_reference)
+        return True
+    return False
 
-    if not self.get_all_guid_files(view):
-        return
-
-    self.parse_yaml(view)
-
-    for region in view.sel():
-        selected_text = view.substr(region)
-
-        def open_file(file):
-            view.window().open_file(file)
-
-        def go_to_reference(id):
-            if view.window().active_view():
-                row = self.row_by_id[id]
-                col = 1
-                print("Trying to go to line " + str(row))
-                view.window().active_view().run_command(
-                        "goto_row_col",
-                        {"row": row, "col": col}
-                )
-
-        if selected_text in self.files_by_guid:
-            view.set_status('guid_info', self.files_by_guid[selected_text])
-            view.show_popup('<b>' + self.relative_path_by_guid[selected_text] + '</b><br><a href="' + self.files_by_guid[selected_text] + '">Open</a>', on_navigate=open_file)
-
-        if selected_text in self.gameobject_name_by_id:
-            popup_text = '<b>GameObject: ' + self.gameobject_name_by_id[selected_text] + \
-                '</b><br><a href="' + selected_text + '">Show definition </a> <br>' + \
-                        '<a href="'+ self.transform_id_by_gameobject_id[selected_text] + \
-                        '">Show Transform component</a>'
-            view.set_status('guid_info', self.gameobject_name_by_id[selected_text])
-            view.show_popup(popup_text, on_navigate=go_to_reference)
-
-        if selected_text in self.gameobject_id_by_transform_id:
-            selected_text = self.gameobject_id_by_transform_id[selected_text]
-            popup_text = '<b>[Transform] GameObject: ' + self.gameobject_name_by_id[selected_text] + \
-                '</b><br><a href="' + selected_text + '">Show definition </a> <br>' + \
-                        '<a href="'+ self.transform_id_by_gameobject_id[selected_text] + \
-                        '">Show Transform component</a>'
-            view.set_status('guid_info', self.gameobject_name_by_id[selected_text])
-            view.show_popup(popup_text, on_navigate=go_to_reference)
+def print_yaml_transform_info(file, selected_text, parser_data, go_to_reference, show_info):
+    if selected_text in parser_data['by_files'][file]['gameobject_id_by_transform_id']:
+        selected_text = parser_data['by_files'][file]['gameobject_id_by_transform_id'][selected_text]
+        popup_text = '<b>[Transform] GameObject: ' + parser_data['by_files'][file]['gameobject_name_by_id'][selected_text] + \
+            '</b><br><a href="' + selected_text + '">Show definition </a> <br>' + \
+                    '<a href="'+ parser_data['by_files'][file]['transform_id_by_gameobject_id'][selected_text] + \
+                    '">Show Transform component</a>'
+        show_info(popup_text, go_to_reference)
+        return True
+    return False
 

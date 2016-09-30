@@ -37,9 +37,7 @@ class SublimeUnityIntel(sublime_plugin.EventListener):
         symbolic_parser.parse_project(project_path, file_name)
 
     def on_selection_modified_async(self, view):
-        def show_popup(text, on_navigate_method):
-            view.show_popup(text, on_navigate=on_navigate_method)
-        symbolic_parser.print_selection_info()
+        symbolic_parser.print_selection_info(view)
 
 class DebugintelCommand(sublime_plugin.TextCommand):
     def run(self, edit):
