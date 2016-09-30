@@ -84,6 +84,7 @@ def  parse_tokens(tokens_data):
             class_identified = True
 
     tokens_data['classes'] = classes_data
+    tokens_data['outline_data'] = classes_data
 
     return tokens_data
 
