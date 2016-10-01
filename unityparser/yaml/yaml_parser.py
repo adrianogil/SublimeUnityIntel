@@ -4,27 +4,68 @@ import os
 import fnmatch
 from os.path import join
 
-files_by_guid = {}
-filenames_by_guid = {}
-relative_path_by_guid = {}
-gameobject_name_by_id = {}
-row_by_id = {}
 
-transform_id_by_gameobject_id = {}
-gameobject_id_by_transform_id = {}
+class YamlElement:
 
-class YamlGameObject:
-    gameobject_name = ''
-    definition_line = 0
+    def __init__(self):
+        self.yaml_id = ''
+
+class YamlTransform(YamlElement):
+    
+    
+    game_object = None
+    children = []
+    parent = None
+
+    def __init__(self):
+        super(YamlTransform, self).__init__()
+        self.go_id = ''
+        self.definition_line = 0
+        self.children_ids = []
+        self.game_object = None
+        self.children = []
+        self.parent = None 
+
+    def add_child(self, child_transform):
+        self.children.append(child_transform)
+        child_transform.parent = self
+
+class YamlGameObject(YamlElement):
 
     def __init__(self, gameobject_name, definition_line):
+        super(YamlGameObject, self).__init__()
         self.gameobject_name = gameobject_name
         self.definition_line = definition_line
+        # self.gameobject_name = ''
+        # self.definition_line = 0
+        self.transform = None
 
-    def print_outline(self):
-        object_outline = '<a href="' + str(self.definition_line) + '">GameObject ' + \
+    def print_outline(self, prefix=''):
+        # print(self.gameobject_name)
+        object_outline = '<a href="' + str(self.definition_line) + '">' + prefix + ' GameObject ' + \
                                     self.gameobject_name + '</a>'
+        # print(object_outline)
+        if self.transform != None:
+            # print(self.transform.yaml_id)
+            for c in self.transform.children:
+                if c.game_object != None:
+                    object_outline = object_outline + "<br>" +  c.game_object.print_outline(prefix + '-')
+                    # object_outline = object_outline + "<br>\n" +  c.game_object.yaml_id
         return object_outline
+
+class YamlPrefab(YamlElement):
+    guid = ''
+    target_id = ''
+
+    game_object = None
+    transform = None
+
+    # def __init__(self, gameobject_name, definition_line):
+    #     super(YamlPrefab, self).__init__(gameobject_name, definition_line)  
+    # def print_outline(self):
+    #     object_outline = '<a href="' + str(self.definition_line) + '">Prefab ' + \
+    #                                 self.gameobject_name + '</a>'
+    #     return object_outline
 
 def parse_yaml(filename, parse_data):
     with open(filename) as f:
@@ -37,6 +78,9 @@ def parse_yaml(filename, parse_data):
     file_data['transform_id_by_gameobject_id'] = {}
     file_data['gameobject_id_by_transform_id'] = {}
 
+    transform_instances = []
+    gameobject_instances = []
+
     current_go_id = ''
     found_go = False
     current_go_line = 0
@@ -44,12 +88,45 @@ def parse_yaml(filename, parse_data):
     current_transform_id = ''
     found_transform = False
     current_transform_line = 0
+    transform_go_id = ""
+    transform_children_id = []
+    found_transform_children_property = False
+
+    current_prefab_id = ''
+    current_prefab_guid = ''
+    found_prefab = False
+    current_prefab_line = 0
 
     outline_data = []
 
     for i in range(1, total_lines):
         line = content[i]
+        line_size = len(line)
         last_line = content[i-1]
+
+        #  End of a section detected
+        if line.find("--- !u!") != -1 and \
+           (found_go or found_prefab or found_transform):
+            if found_transform:
+                file_data['transform_id_by_gameobject_id'][transform_go_id] = current_transform_id
+                file_data['gameobject_id_by_transform_id'][current_transform_id] = transform_go_id
+                file_data['row_by_id'][current_transform_id] = current_transform_line
+                # print("Detected go_id: " + str(go_id) + " related to transform: " + str(current_transform_id))
+                
+                transform = YamlTransform()
+                transform.yaml_id = current_transform_id
+                transform.go_id = transform_go_id
+                transform.definition_line = current_transform_line
+                transform.children_ids = transform_children_id
+                transform_instances.append(transform)
+
+                transform_children_id = []
+                current_transform_id = ''
+                transform_go_id = ""
+                current_transform_line = -1
+            found_go = False
+            found_prefab = False
+            found_transform = False
 
         # GameObject detection
         if last_line.find('--- !u!') != -1 and line.find("GameObject") != -1:
@@ -61,10 +138,43 @@ def parse_yaml(filename, parse_data):
             gameobject_name = line[9:-1]
             file_data['gameobject_name_by_id'][current_go_id] = gameobject_name
             file_data['row_by_id'][current_go_id] = current_go_line
-            outline_data.append(YamlGameObject(gameobject_name, current_go_line))
+            go_instance = YamlGameObject(gameobject_name, current_go_line)
+            go_instance.yaml_id = current_go_id
+            outline_data.append(go_instance)
+            gameobject_instances.append(go_instance)
 
             found_go = False
             current_go_id = ''
+
+        # if found_go and line.find("m_PrefabParentObject:") != -1 and line.find("m_PrefabParentObject: {fileID: 0}") == -1:
+        #     guid = ''
+        #     found_guid = False
+        #     for l in range(21, line_size):
+
+        #Prefab detection
+        if last_line.find('--- !u!') != -1 and line.find("Prefab") != -1:
+            current_prefab_id = last_line[14:-1]
+            current_prefab_line = i
+            found_prefab = True
+
+        if found_prefab and line.find("target: {") != -1:
+            start_prefab_guid = 0
+            end_prefab_guid = 0
+            for l in range(20, line_size):
+                if line[l-6:l].find("guid: ") != -1:
+                    start_prefab_guid = l
+                if start_prefab_guid > 0 and line[l] == ",":
+                    end_prefab_guid = l
+                    break
+            current_prefab_guid = line[start_prefab_guid:end_prefab_guid]
+            # print("found prefab with guid: " + current_prefab_guid)
+            if current_prefab_guid in parse_data['yaml']['filenames_by_guid']:
+                prefab_filename = parse_data['yaml']['filenames_by_guid'][current_prefab_guid]
+                # outline_data.append(YamlPrefab(prefab_filename, current_prefab_line))
+            found_prefab = False
+            current_prefab_line = 0
+            current_prefab_id = ''
+            current_prefab_guid = ''
 
         # Transform detection
         if last_line.find('--- !u!') != -1 and line.find("Transform") != -1:
@@ -73,7 +183,6 @@ def parse_yaml(filename, parse_data):
             found_transform = True
 
         if found_transform and line.find("m_GameObject: {fileID: ") != -1:
-            line_size = len(line)
             start_go_id = 0
             end_go_id = 0
             for l in range(8, line_size):
@@ -82,15 +191,51 @@ def parse_yaml(filename, parse_data):
                 elif line[l] == '}':
                     end_go_id = l
                     break
-            go_id = line[start_go_id:end_go_id]
-            file_data['transform_id_by_gameobject_id'][go_id] = current_transform_id
-            file_data['gameobject_id_by_transform_id'][current_transform_id] = go_id
-            file_data['row_by_id'][current_transform_id] = current_transform_line
-            # print("Detected go_id: " + str(go_id) + " related to transform: " + str(current_transform_id))
-            found_transform = False
-            current_transform_id = ''
-            current_transform_line = -1
+            transform_go_id = line[start_go_id:end_go_id]
 
+        if not found_transform_children_property and \
+           found_transform and line.find("m_Children:") != -1 and line.find("m_Children: []") == -1:
+            found_transform_children_property = True
+            transform_children_id = []
+        elif found_transform_children_property and (line.find("- {fileID: ") == -1 or line.find("m_Father:") != -1):
+            found_transform_children_property = False
+        elif found_transform_children_property:
+            start_child_id = 0
+            end_child_id = 0
+            for l in range(13, line_size):
+                if line[l-13:l].find("  - {fileID: ") != -1:
+                    start_child_id = l 
+                if start_child_id > 0 and line[l] == "}":
+                    end_child_id = l
+                    break
+            # Add a child to current transform
+            transform_children_id.append(line[start_child_id:end_child_id])
+
+    for t1 in transform_instances:
+        # print(t1.go_id)
+        # print(t1.children_ids)
+        # print(t1.yaml_id + " has " + str(len(t1.children)) + ' children')
+        for c in t1.children_ids:
+            for t2 in transform_instances:
+                if t1 != t2 and t1.yaml_id != t2.yaml_id and t2.yaml_id == c:
+                    # print('Add child ' + t2.yaml_id + " to transform " + t1.yaml_id)
+                    t1.add_child(t2)
+                    break
+        # print(t1.yaml_id + " got " + str(len(t1.children)) + ' children')
+        for go in gameobject_instances:
+            if go.yaml_id == t1.go_id:
+                t1.game_object = go
+                go.transform = t1
+                # print("Add transform " + t1.yaml_id + " to gameobject " + go.yaml_id)
+                break
+
+    outline_data = []
+    for go in gameobject_instances:
+        if go.transform.parent == None:
+            outline_data.append(go)
+
+    file_data['game_objects'] = gameobject_instances
+    file_data['transforms'] = transform_instances
     file_data['outline_data'] = outline_data
     parse_data['by_files'][filename] = file_data
 

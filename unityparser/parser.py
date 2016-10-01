@@ -60,6 +60,9 @@ class SymbolicParser:
     def print_selection_info(self, view):
         file = view.file_name()
 
+        if file == None:
+            return
+            
         def open_file(file):
             view.window().open_file(file)
 
@@ -76,12 +79,13 @@ class SymbolicParser:
         def show_popup(text, action):
             view.show_popup(text, on_navigate=action)
 
-        for region in view.sel():
-            selected_text = view.substr(region)
+        if file.lower().endswith(('.unity','.prefab','.asset', '.meta')):
+            for region in view.sel():
+                selected_text = view.substr(region)
 
-            if not yaml_parser.print_yaml_file_info(file, selected_text, self.symbolic_data['parse'], open_file, show_popup):
-                if not yaml_parser.print_yaml_gameobject_info(file, selected_text, self.symbolic_data['parse'], go_to_reference, show_popup):
-                    yaml_parser.print_yaml_transform_info(file, selected_text, self.symbolic_data['parse'], go_to_reference, show_popup)
+                if not yaml_parser.print_yaml_file_info(file, selected_text, self.symbolic_data['parse'], open_file, show_popup):
+                    if not yaml_parser.print_yaml_gameobject_info(file, selected_text, self.symbolic_data['parse'], go_to_reference, show_popup):
+                        yaml_parser.print_yaml_transform_info(file, selected_text, self.symbolic_data['parse'], go_to_reference, show_popup)
 
     # Print outline for current file
     # @param show_outline - method to exhibit outline
