@@ -1,6 +1,5 @@
 import sublime, sublime_plugin
-import os
-import sys
+import os, sys, time
 
 # print(__path__)
 
@@ -18,6 +17,8 @@ from unityparser.parser import SymbolicParser
 
 symbolic_parser = SymbolicParser()
 
+last_parse_time = {}
+
 class SublimeUnityIntel(sublime_plugin.EventListener):
     # Parse current file whenever the view gains focus
     def on_activated_async(self, view):
@@ -29,12 +30,13 @@ class SublimeUnityIntel(sublime_plugin.EventListener):
         symbolic_parser.parse_file(current_file)
 
         # Parse the whole project one single time
-        window_variables = view.window().extract_variables()
-        project_path = ''
-        if 'project_path' in window_variables:
-            project_path = window_variables["project_path"]
-        file_name = view.file_name()
-        symbolic_parser.parse_project(project_path, file_name)
+        if not current_file in last_parse_time or (time.time() - last_parse_time[current_file]) > 300:
+            last_parse_time[current_file] = time.time()
+            window_variables = view.window().extract_variables()
+            project_path = ''
+            if 'project_path' in window_variables:
+                project_path = window_variables["project_path"]
+            symbolic_parser.parse_project(project_path, current_file)
 
     def on_selection_modified_async(self, view):
         symbolic_parser.print_selection_info(view)
