@@ -64,7 +64,7 @@ class SymbolicParser:
 
         if file == None:
             return
-            
+
         def open_file(file):
             view.window().open_file(file)
 
@@ -88,6 +88,20 @@ class SymbolicParser:
                 if not yaml_parser.print_yaml_file_info(file, selected_text, self.symbolic_data['parse'], open_file, show_popup):
                     if not yaml_parser.print_yaml_gameobject_info(file, selected_text, self.symbolic_data['parse'], go_to_reference, show_popup):
                         yaml_parser.print_yaml_transform_info(file, selected_text, self.symbolic_data['parse'], go_to_reference, show_popup)
+        elif file.lower().endswith('.cs'):
+            for region in view.sel():
+                rowcol = view.rowcol(region.begin())
+                semantic_object = self.get_semantic_token(file, rowcol, True)
+                # print('parser.py::print_selection_info - received ' + str(semantic_object))
+                if semantic_object == None:
+                    # print('parser.py::print_selection_info - received None ')
+                    return
+                if isinstance(semantic_object, csharp_class_parser.CSharpClass):
+                    # print('parser.py::print_selection_info - show class_info of CSharpClass ' + semantic_object.class_name)
+                    show_popup(semantic_object.print_class_info(), go_to_reference)
+                else:
+                    # print('parser.py::print_selection_info - It is not sa CSharpClass instance')
+                    return
 
     # Print outline for current file
     # @param show_outline - method to exhibit outline
@@ -109,19 +123,20 @@ class SymbolicParser:
             # print(class_outline)
             show_outline(text_outline)
 
-    def get_semantic_token(self, file, rowcol):
+    def get_semantic_token(self, file, rowcol, usingcol = False):
         file_data = self.symbolic_data['parse']['by_files'][file]
         if 'token_position' in file_data:
             token_position = file_data['token_position']
             tokens = file_data['tokens']
             row, col = rowcol
+            row=row+1
             print('parser.py::get_semantic_token - searching in position ' + str(row) + ',' + str(col))
             total_tokens = len(token_position)
             for i in list(reversed(range(0, total_tokens))):
                 token_row,  token_col = token_position[i]
                 token_size = len(tokens[i])
 
-                if row > token_row: #and col >= token_col and col <= (token_col + token_size):
+                if row > token_row and (not usingcol or (col >= token_col and col <= (token_col + token_size))):
                     print('parser.py::get_semantic_token - found semantic token: ' + str(i) + \
                         ' - ' + str(file_data['semantic_tokens'][i]) + ' in position ' +  \
                         str(token_row) + ',' + str(token_col) + " which token is " + \
@@ -130,7 +145,7 @@ class SymbolicParser:
         else:
             return None
 
-    def print_debuglog(self, file, rowcol): 
+    def print_debuglog(self, file, rowcol):
         file_data = self.symbolic_data['parse']['by_files'][file]
         semantic_object = self.get_semantic_token(file, rowcol)
 
@@ -140,4 +155,3 @@ class SymbolicParser:
             return semantic_object.get_debug_log()
         else:
             return ""
-        

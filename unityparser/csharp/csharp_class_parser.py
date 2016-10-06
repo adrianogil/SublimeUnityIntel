@@ -13,12 +13,17 @@ from csharp_element import CSharpElement
 import csharp_class_body_parser
 
 class CSharpClass(CSharpElement):
-    class_name = ''
-    methods_data = []
 
     def __init__(self, csharp_class_name, tokens, token_pos):
         super(CSharpClass, self).__init__('importer', tokens, token_pos)
         self.class_name = csharp_class_name
+        self.methods_data = []
+
+    def print_class_info(self):
+        class_info = '<b><a href="' + str(self.line_in_file) + '">Class ' + self.class_name + '</a></b>' + \
+                    '<br> ' + str(len(self.methods_data)) + " methods "
+
+        return class_info
 
     def print_outline(self):
         class_outline = '<a href="' + str(self.line_in_file) + '">Class ' + self.class_name + '</a>'
@@ -59,10 +64,13 @@ def  parse_tokens(tokens_data):
 
             print('Class identified: ' + class_name + " with baseclass/interfaces: " + str(classinfo_tokens))
             class_instance = CSharpClass(class_name, tokens[t:class_end_position], class_end_position)
+
             tokens_data = csharp_class_body_parser.parse_tokens(tokens_data, (t+1, tokens_data['enclosure_position'][t]), class_name, class_instance)
             class_instance.line_in_file = positions[start_class_pos][0]
             class_instance.methods_data = tokens_data['method_data']
             classes_data.append(class_instance)
+            for i in range(start_class_pos, t):
+                semantic_tokens[i] = class_instance
             class_name = ''
             classinfo_tokens = []
 
