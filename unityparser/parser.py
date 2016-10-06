@@ -93,7 +93,7 @@ class SymbolicParser:
         elif file.lower().endswith('.cs'):
             for region in view.sel():
                 rowcol = view.rowcol(region.begin())
-                semantic_object = self.get_semantic_token(file, rowcol, True, True)
+                semantic_object = self.get_semantic_token(file, rowcol, True, True, True, view.substr(region))
                 # print('parser.py::print_selection_info - received ' + str(type(semantic_object)) + " " + \
                     # str(type(CSharpClassMethod("",[],[]))) + \
                     # str(isinstance(semantic_object, type(CSharpClassMethod("",[],[])))))
@@ -128,7 +128,7 @@ class SymbolicParser:
             # print(class_outline)
             show_outline(text_outline)
 
-    def get_semantic_token(self, file, rowcol, usingcol = False, sameLine=False):
+    def get_semantic_token(self, file, rowcol, usingcol = False, sameLine=False, token_verification=False, token_selected=''):
         file_data = self.symbolic_data['parse']['by_files'][file]
         if 'token_position' in file_data:
             token_position = file_data['token_position']
@@ -142,11 +142,12 @@ class SymbolicParser:
 
                 if ((not sameLine and row > token_row) or \
                     (sameLine and row == token_row)) and \
-                    (not usingcol or (col <= token_col and col >= (token_col - token_size))):
+                    (not usingcol or (col <= token_col and col >= (token_col - token_size))) \
+                    and (not token_verification or (len(token_selected) > 1 and tokens[i].find(token_selected) != -1) ):
                     print('parser.py::get_semantic_token - found semantic token: ' + str(i) + \
                         ' - ' + str(file_data['semantic_tokens'][i]) + ' in position ' +  \
                         str(token_row) + ',' + str(token_col) + " which token is " + \
-                        tokens[i])
+                        tokens[i] + ' and token_verification ' + str(token_selected))
                     return file_data['semantic_tokens'][i]
         else:
             return None
