@@ -291,7 +291,7 @@ def get_all_guid_files(project_path, file_path):
             for line in content:
                 if line.find('guid:') != -1:
                     guid = line[6:(len(line)-1)]
-            print(filename + ": " + guid)
+            # print(filename + ": " + guid)
             yaml_data['files_by_guid'][guid] = join(root, filename)[:-5]
             yaml_data['filenames_by_guid'][guid] = filename[:-5]
             yaml_data['relative_path_by_guid'][guid] = join(root, filename)[len(project_path):-5]

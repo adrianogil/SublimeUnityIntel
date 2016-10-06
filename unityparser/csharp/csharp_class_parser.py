@@ -18,11 +18,17 @@ class CSharpClass(CSharpElement):
         super(CSharpClass, self).__init__('importer', tokens, token_pos)
         self.class_name = csharp_class_name
         self.methods_data = []
+        self.fields_data = []
+
+    def add_field(self, field_instance):
+        self.fields_data.append(field_instance)
+        field_instance.class_object = self
 
     def print_class_info(self):
         class_info = '<b><a href="' + str(self.line_in_file) + '">Class ' + self.class_name + '</a></b>' + \
-                    '<br> ' + str(len(self.methods_data)) + " methods "
-
+                    '<br>' + str(len(self.methods_data)) + " methods " + \
+                    '<br>' + str(len(self.fields_data)) + " fields "
+        print(class_info)
         return class_info
 
     def print_outline(self):

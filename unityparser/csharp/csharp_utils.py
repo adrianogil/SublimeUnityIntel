@@ -6,6 +6,17 @@ def is_base_keyword(token):
         token[2] == 's' and \
         token[3] == 'e'
 
+def is_delegate_keyword(token):
+    return len(token) == 8 and \
+        token[0] == 'd' and \
+        token[1] == 'e' and \
+        token[2] == 'l' and \
+        token[3] == 'e' and \
+        token[4] == 'g' and \
+        token[5] == 'a' and \
+        token[6] == 't' and \
+        token[7] == 'e'
+
 def is_override_modifier(token):
     return len(token) == 8 and \
         token[0] == 'o' and \

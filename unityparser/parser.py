@@ -130,17 +130,17 @@ class SymbolicParser:
             tokens = file_data['tokens']
             row, col = rowcol
             row=row+1
-            print('parser.py::get_semantic_token - searching in position ' + str(row) + ',' + str(col))
+            # print('parser.py::get_semantic_token - searching in position ' + str(row) + ',' + str(col))
             total_tokens = len(token_position)
             for i in list(reversed(range(0, total_tokens))):
                 token_row,  token_col = token_position[i]
                 token_size = len(tokens[i])
 
                 if row > token_row and (not usingcol or (col >= token_col and col <= (token_col + token_size))):
-                    print('parser.py::get_semantic_token - found semantic token: ' + str(i) + \
-                        ' - ' + str(file_data['semantic_tokens'][i]) + ' in position ' +  \
-                        str(token_row) + ',' + str(token_col) + " which token is " + \
-                        tokens[i])
+                    # print('parser.py::get_semantic_token - found semantic token: ' + str(i) + \
+                    #     ' - ' + str(file_data['semantic_tokens'][i]) + ' in position ' +  \
+                    #     str(token_row) + ',' + str(token_col) + " which token is " + \
+                    #     tokens[i])
                     return file_data['semantic_tokens'][i]
         else:
             return None
