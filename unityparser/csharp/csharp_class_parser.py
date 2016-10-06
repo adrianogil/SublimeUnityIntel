@@ -58,12 +58,11 @@ def  parse_tokens(tokens_data):
             class_end_position = tokens_data['enclosure_position'][t]
 
             print('Class identified: ' + class_name + " with baseclass/interfaces: " + str(classinfo_tokens))
-            tokens_data = csharp_class_body_parser.parse_tokens(tokens_data, (t+1, tokens_data['enclosure_position'][t]), class_name)
             class_instance = CSharpClass(class_name, tokens[t:class_end_position], class_end_position)
+            tokens_data = csharp_class_body_parser.parse_tokens(tokens_data, (t+1, tokens_data['enclosure_position'][t]), class_name, class_instance)
             class_instance.line_in_file = positions[start_class_pos][0]
             class_instance.methods_data = tokens_data['method_data']
             classes_data.append(class_instance)
-
             class_name = ''
             classinfo_tokens = []
 

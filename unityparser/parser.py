@@ -20,9 +20,11 @@ if __yaml_path__ not in sys.path:
 from token_parser import TokenParser
 import yaml_parser
 
+from csharp_class_method_parser import CSharpClassMethod
 from csharp.csharp_element import CSharpElement
 from csharp import csharp_importer_parser
 from csharp import csharp_class_parser
+
 
 class SymbolicParser:
     symbolic_data = {}
@@ -106,3 +108,36 @@ class SymbolicParser:
 
             # print(class_outline)
             show_outline(text_outline)
+
+    def get_semantic_token(self, file, rowcol):
+        file_data = self.symbolic_data['parse']['by_files'][file]
+        if 'token_position' in file_data:
+            token_position = file_data['token_position']
+            tokens = file_data['tokens']
+            row, col = rowcol
+            print('parser.py::get_semantic_token - searching in position ' + str(row) + ',' + str(col))
+            total_tokens = len(token_position)
+            for i in list(reversed(range(0, total_tokens))):
+                token_row,  token_col = token_position[i]
+                token_size = len(tokens[i])
+
+                if row > token_row: #and col >= token_col and col <= (token_col + token_size):
+                    print('parser.py::get_semantic_token - found semantic token: ' + str(i) + \
+                        ' - ' + str(file_data['semantic_tokens'][i]) + ' in position ' +  \
+                        str(token_row) + ',' + str(token_col) + " which token is " + \
+                        tokens[i])
+                    return file_data['semantic_tokens'][i]
+        else:
+            return None
+
+    def print_debuglog(self, file, rowcol): 
+        file_data = self.symbolic_data['parse']['by_files'][file]
+        semantic_object = self.get_semantic_token(file, rowcol)
+
+        if semantic_object == None:
+            return ''
+        if isinstance(semantic_object, CSharpClassMethod):
+            return semantic_object.get_debug_log()
+        else:
+            return ""
+        

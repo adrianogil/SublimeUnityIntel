@@ -47,7 +47,7 @@ class DebugintelCommand(sublime_plugin.TextCommand):
 
 class OutlineCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        print('Running command')
+        print('Running command "Outline"')
         view = self.view
         current_file = view.file_name()
 
@@ -66,6 +66,18 @@ class OutlineCommand(sublime_plugin.TextCommand):
             view.show_popup(text, on_navigate=go_to_reference)
 
         symbolic_parser.print_outline(current_file, show_popup)
+
+class SmartdebugCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        print('Running command "DebugLog"')
+        view = self.view
+        file = view.file_name()
+
+        if file.lower().endswith(('.cs')):
+            for region in view.sel():
+                rowcol = view.rowcol(region.begin())
+                debug_log = symbolic_parser.print_debuglog(file, rowcol)
+                view.replace(edit, region, debug_log)
 
 class GotoRowColCommand(sublime_plugin.TextCommand):
         def run(self, edit, row, col):

@@ -14,8 +14,8 @@ import csharp_class_method_parser
 import csharp_class_member_parser
 
 # class_region = (token_start, token_end) of enclosure class
-def parse_tokens(tokens_data, class_region, class_name):
-    tokens_data = csharp_class_method_parser.parse_tokens(tokens_data, class_region, class_name)
+def parse_tokens(tokens_data, class_region, class_name, class_instance):
+    tokens_data = csharp_class_method_parser.parse_tokens(tokens_data, class_region, class_name, class_instance)
     tokens_data = csharp_class_member_parser.parse_tokens(tokens_data, class_region, class_name)
 
     return tokens_data

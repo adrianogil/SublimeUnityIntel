@@ -14,17 +14,17 @@ import csharp_class_method_param_parser
 import csharp_utils
 
 class CSharpClassMethod(CSharpElement):
-    method_name = ''
-    method_type = ''
-    method_access_level = ''
-    is_static = False
-    is_constructor = False
-    is_override = False
-    is_virtual = False
 
     def __init__(self, csharp_method_name, tokens, token_pos):
         super(CSharpClassMethod, self).__init__('importer', tokens, token_pos)
         self.method_name = csharp_method_name
+        self.method_type = ''
+        self.method_access_level = ''
+        self.is_static = False
+        self.is_constructor = False
+        self.is_override = False
+        self.is_virtual = False
+        self.class_object = None
 
     def print_outline(self):
         access_notation = '* '
@@ -37,8 +37,12 @@ class CSharpClassMethod(CSharpElement):
         return '    <a href="' + str(self.line_in_file) + '">' + \
                 access_notation + 'method ' + self.method_name + '</a>'
 
+    def get_debug_log(self):
+        return 'Debug.Log("' + self.class_object.class_name + '::' + self.method_name + '");'
+
+
 # class_region = (token_start, token_end) of enclosure class
-def parse_tokens(tokens_data, class_region, class_name):
+def parse_tokens(tokens_data, class_region, class_name, class_object):
 
     tokens = tokens_data['tokens']
     semantic_tokens = tokens_data['semantic_tokens']
@@ -72,7 +76,11 @@ def parse_tokens(tokens_data, class_region, class_name):
         method_instance.is_constructor = is_constructor
         method_instance.is_virtual = is_virtual
         method_instance.is_override = is_override
+        method_instance.class_object = class_object
         method_data.append(method_instance)
+
+        for i in range(start_method_pos, enclosure_position[enclosure_position[t]+1]):
+            semantic_tokens[i] = method_instance
 
     while t < end_region:
         
@@ -120,6 +128,8 @@ def parse_tokens(tokens_data, class_region, class_name):
                 print('Found method ' + method_name + " with return type '" + return_type + "' and access level " + method_access_level)
             tokens_data = csharp_class_method_param_parser.parse_tokens(tokens_data, (t+1, enclosure_position[t]))
 
+            semantic_tokens
+
             create_method_instance(t)
 
             is_static_method = False
@@ -133,5 +143,6 @@ def parse_tokens(tokens_data, class_region, class_name):
             t = t + 1
 
     tokens_data['method_data'] = method_data
+    tokens_data['semantic_tokens'] = semantic_tokens
 
     return tokens_data

@@ -1,6 +1,8 @@
 [
 { 
 	"keys": ["super+shift+g"],
-	"command": "outline"
+	"command": "outline",
+    "keys": ["super+shift+k"],
+    "command": "smartdebug"
 }
 ]
