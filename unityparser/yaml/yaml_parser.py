@@ -11,8 +11,8 @@ class YamlElement:
         self.yaml_id = ''
 
 class YamlTransform(YamlElement):
-    
-    
+
+
     game_object = None
     children = []
     parent = None
@@ -24,7 +24,7 @@ class YamlTransform(YamlElement):
         self.children_ids = []
         self.game_object = None
         self.children = []
-        self.parent = None 
+        self.parent = None
 
     def add_child(self, child_transform):
         self.children.append(child_transform)
@@ -61,7 +61,7 @@ class YamlPrefab(YamlElement):
     transform = None
 
     # def __init__(self, gameobject_name, definition_line):
-    #     super(YamlPrefab, self).__init__(gameobject_name, definition_line)  
+    #     super(YamlPrefab, self).__init__(gameobject_name, definition_line)
     # def print_outline(self):
     #     object_outline = '<a href="' + str(self.definition_line) + '">Prefab ' + \
     #                                 self.gameobject_name + '</a>'
@@ -112,7 +112,7 @@ def parse_yaml(filename, parse_data):
                 file_data['gameobject_id_by_transform_id'][current_transform_id] = transform_go_id
                 file_data['row_by_id'][current_transform_id] = current_transform_line
                 # print("Detected go_id: " + str(go_id) + " related to transform: " + str(current_transform_id))
-                
+
                 transform = YamlTransform()
                 transform.yaml_id = current_transform_id
                 transform.go_id = transform_go_id
@@ -204,7 +204,7 @@ def parse_yaml(filename, parse_data):
             end_child_id = 0
             for l in range(13, line_size):
                 if line[l-13:l].find("  - {fileID: ") != -1:
-                    start_child_id = l 
+                    start_child_id = l
                 if start_child_id > 0 and line[l] == "}":
                     end_child_id = l
                     break
@@ -241,10 +241,19 @@ def parse_yaml(filename, parse_data):
 
     return parse_data
 
+def is_valid_unity_project_path(project_path):
+    if project_path == "":
+        return False
+    return os.path.isdir(join(project_path, "Assets")) and \
+                   os.path.isdir(join(project_path, "ProjectSettings"))
+
 def get_all_guid_files(project_path, file_path):
     yaml_data = {}
 
-    if project_path == "":
+    print('yaml_parser::get_all_guid_files - received project_path: ' + project_path)
+    print('yaml_parser::get_all_guid_files - received file_path: ' + file_path)
+
+    if not is_valid_unity_project_path(project_path):
         if file_path == None:
             return yaml_data
 
@@ -262,6 +271,12 @@ def get_all_guid_files(project_path, file_path):
                 else:
                     return yaml_data
 
+    print('yaml_parser::get_all_guid_files - using: ' + project_path)
+
+    if not is_valid_unity_project_path(project_path):
+        print('yaml_parser::get_all_guid_files - invalid project path')
+        return
+
     yaml_data['files_by_guid'] = {}
     yaml_data['filenames_by_guid'] = {}
     yaml_data['relative_path_by_guid'] = {}
@@ -276,7 +291,7 @@ def get_all_guid_files(project_path, file_path):
             for line in content:
                 if line.find('guid:') != -1:
                     guid = line[6:(len(line)-1)]
-            # print(filename + ": " + guid)
+            print(filename + ": " + guid)
             yaml_data['files_by_guid'][guid] = join(root, filename)[:-5]
             yaml_data['filenames_by_guid'][guid] = filename[:-5]
             yaml_data['relative_path_by_guid'][guid] = join(root, filename)[len(project_path):-5]
