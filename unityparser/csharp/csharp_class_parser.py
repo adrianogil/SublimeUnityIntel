@@ -24,11 +24,11 @@ class CSharpClass(CSharpElement):
         self.fields_data.append(field_instance)
         field_instance.class_object = self
 
-    def print_class_info(self):
+    def print_element_info(self):
         class_info = '<b><a href="' + str(self.line_in_file) + '">Class ' + self.class_name + '</a></b>' + \
                     '<br>' + str(len(self.methods_data)) + " methods " + \
                     '<br>' + str(len(self.fields_data)) + " fields "
-        print(class_info)
+        # print(class_info)
         return class_info
 
     def print_outline(self):

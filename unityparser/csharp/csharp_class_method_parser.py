@@ -31,6 +31,11 @@ class CSharpClassMethod(CSharpElement):
         self.params.append(param_object)
         param_object.method_object = self
 
+    def print_element_info(self):
+        method_info = '<b><a href="' + str(self.line_in_file) + '">Method ' + self.method_name + '</a></b>'
+        # print(method_info)
+        return method_info
+
     def print_outline(self):
         access_notation = '* '
         if self.method_access_level == 'public':
@@ -96,7 +101,7 @@ def parse_tokens(tokens_data, class_region, class_name, class_object):
         method_instance.class_object = class_object
         method_data.append(method_instance)
 
-        for i in range(start_method_pos, enclosure_position[enclosure_position[t]+1]):
+        for i in range(start_method_pos-1, enclosure_position[enclosure_position[t]+1]):
             semantic_tokens[i] = method_instance
 
         return method_instance
