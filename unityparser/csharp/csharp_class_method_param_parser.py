@@ -11,16 +11,16 @@ if __path__ not in sys.path:
 from csharp_element import CSharpElement
 
 class CSharpClassParamMethod(CSharpElement):
-    param_name = ''
-    param_type = ''
-    param_default_value = ''
 
     def __init__(self, csharp_param_name, tokens, token_pos):
-        super(CSharpClassParamMethod, self).__init__('importer', tokens, token_pos)
+        super(CSharpClassParamMethod, self).__init__('class_method_param', tokens, token_pos)
         self.param_name = csharp_param_name
+        self.param_type = ''
+        self.param_default_value = ''
+        self.method_object = None
 
 # class_region = (token_start, token_end) of enclosure class
-def parse_tokens(tokens_data, class_region):
+def parse_tokens(tokens_data, class_region, method_instance):
 
     tokens = tokens_data['tokens']
     semantic_tokens = tokens_data['semantic_tokens']
@@ -46,13 +46,15 @@ def parse_tokens(tokens_data, class_region):
     number_of_parameters = 0
 
     def create_method_instance(t):
-        method_instance = CSharpClassParamMethod(parameter_name, \
+        param_instance = CSharpClassParamMethod(parameter_name, \
                                                  tokens[start_method_pos:t], \
                                                  start_method_pos)
-        method_instance.param_type = parameter_type
-        method_instance.param_default_value = parameter_default_value
-        params_data.append(method_instance)
+        param_instance.param_type = parameter_type
+        param_instance.param_default_value = parameter_default_value
+        method_instance.add_param(param_instance)
+        params_data.append(param_instance)
 
+        return param_instance
 
     while t < end_region:
 
@@ -79,7 +81,7 @@ def parse_tokens(tokens_data, class_region):
             number_of_parameters = number_of_parameters + 1
             parameter_type = tokens[t]
             parameter_type_found = True
-        
+
         t = t + 1
 
     if number_of_parameters > 0:

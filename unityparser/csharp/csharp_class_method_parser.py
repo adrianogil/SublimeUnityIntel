@@ -25,6 +25,11 @@ class CSharpClassMethod(CSharpElement):
         self.is_override = False
         self.is_virtual = False
         self.class_object = None
+        self.params = []
+
+    def add_param(self, param_object):
+        self.params.append(param_object)
+        param_object.method_object = self
 
     def print_outline(self):
         access_notation = '* '
@@ -38,7 +43,19 @@ class CSharpClassMethod(CSharpElement):
                 access_notation + 'method ' + self.method_name + '</a>'
 
     def get_debug_log(self):
-        return 'Debug.Log("' + self.class_object.class_name + '::' + self.method_name + '");'
+        debug_message = '"' + self.class_object.class_name + '::' + self.method_name
+
+        params_size = len(self.params)
+
+        if params_size > 0:
+            debug_message = debug_message + ' - '
+
+            for p in range(0, params_size):
+                debug_message = debug_message + self.params[p].param_name + ' " + ' \
+                                              + self.params[p].param_name + ' + " '
+        debug_message = debug_message + '"'
+
+        return 'Debug.Log(' + debug_message + ');'
 
 
 # class_region = (token_start, token_end) of enclosure class
@@ -82,8 +99,10 @@ def parse_tokens(tokens_data, class_region, class_name, class_object):
         for i in range(start_method_pos, enclosure_position[enclosure_position[t]+1]):
             semantic_tokens[i] = method_instance
 
+        return method_instance
+
     while t < end_region:
-        
+
         if tokens[t] == '(' and tokens[enclosure_position[t]+1] == '{':
             if csharp_utils.is_base_keyword(tokens[t-1]):
                 is_constructor = True
@@ -121,16 +140,14 @@ def parse_tokens(tokens_data, class_region, class_name, class_object):
                 method_name = tokens[t-1]
             else:
                 method_name = 'constructor' #tokens[t-5]
-            
+
             if is_static_method:
                 print('Found static method ' + method_name + " with return type '" + return_type + "' and access level " + method_access_level)
             else:
                 print('Found method ' + method_name + " with return type '" + return_type + "' and access level " + method_access_level)
-            tokens_data = csharp_class_method_param_parser.parse_tokens(tokens_data, (t+1, enclosure_position[t]))
 
-            semantic_tokens
-
-            create_method_instance(t)
+            method_instance = create_method_instance(t)
+            tokens_data = csharp_class_method_param_parser.parse_tokens(tokens_data, (t+1, enclosure_position[t]), method_instance)
 
             is_static_method = False
             is_constructor = False
