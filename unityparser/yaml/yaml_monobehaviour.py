@@ -19,10 +19,10 @@ class YamlMonoBehaviour(YamlElement):
         self.definition_line = definition_line
         self.id = ''
         self.guid = script_guid
-        self.script_file_path = ''
-        self.script_file_name = ''
-        self.script_name = ''
+        self.file_name = ''
         self.file_path = ''
+        self.script_name = ''
+        self.reference_file_path = ''
 
     def print_outline(self):
         return 'Component ' + self.file_name

@@ -89,10 +89,10 @@ def parse_yaml(filename, parse_data):
                 # print("Add component " + m.guid + " to gameobject " + go.yaml_id)
                 break
         if m.guid in yaml_data['files_by_guid']:
-            m.script_file_path = yaml_data['files_by_guid'][m.guid]
-            m.script_file_name = yaml_data['filenames_by_guid'][m.guid]
+            m.file_path = yaml_data['files_by_guid'][m.guid]
+            m.file_name = yaml_data['filenames_by_guid'][m.guid]
             m.script_name = yaml_data['filenames_by_guid'][m.guid][:-3]
-            m.file_path = filename
+            m.reference_file_path = filename
 
             if m.script_name in parse_data['symbols']:
                 parse_data['symbols'][m.script_name].add_usage(m)

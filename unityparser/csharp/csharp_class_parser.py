@@ -24,6 +24,9 @@ class CSharpClass(CSharpElement):
 
     def add_usage(self, referee):
         print('Added usage to ' + self.class_name + ' from ' + str(referee))
+        for u in self.usage:
+            if referee.reference_file_path == u.reference_file_path and referee.definition_line == u.definition_line:
+                return
         self.usage.append(referee)
 
     def add_field(self, field_instance):
@@ -34,8 +37,12 @@ class CSharpClass(CSharpElement):
         class_info = '<b><a href="' + str(self.line_in_file) + '">Class ' + self.class_name + '</a></b>' + \
                     '<br>' + str(len(self.methods_data)) + " methods " + \
                     '<br>' + str(len(self.fields_data)) + " fields "
+        yaml_reference_count = 0
         for u in self.usage:
-            class_info = class_info + '<br> Referencied by ' + u.file_path
+            if u.reference_type == 'yaml':
+                yaml_reference_count = yaml_reference_count + 1
+            # class_info = class_info + '<br> Referencied by line ' + str(u.definition_line) + '<br>' + u.reference_file_path
+        class_info = class_info + '<br>  ' + str(yaml_reference_count) + ' references from YAML files'
         # print(class_info)
         return class_info
 
