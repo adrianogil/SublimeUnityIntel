@@ -16,9 +16,15 @@ class CSharpClass(CSharpElement):
 
     def __init__(self, csharp_class_name, tokens, token_pos):
         super(CSharpClass, self).__init__('importer', tokens, token_pos)
+        self.namespace = ''
         self.class_name = csharp_class_name
         self.methods_data = []
         self.fields_data = []
+        self.usage = []
+
+    def add_usage(self, referee):
+        print('Added usage to ' + self.class_name + ' from ' + str(referee))
+        self.usage.append(referee)
 
     def add_field(self, field_instance):
         self.fields_data.append(field_instance)
@@ -28,6 +34,8 @@ class CSharpClass(CSharpElement):
         class_info = '<b><a href="' + str(self.line_in_file) + '">Class ' + self.class_name + '</a></b>' + \
                     '<br>' + str(len(self.methods_data)) + " methods " + \
                     '<br>' + str(len(self.fields_data)) + " fields "
+        for u in self.usage:
+            class_info = class_info + '<br> Referencied by ' + u.file_path
         # print(class_info)
         return class_info
 
@@ -37,6 +45,9 @@ class CSharpClass(CSharpElement):
             class_outline = class_outline + '<br>'
             class_outline = class_outline + m.print_outline()
         return class_outline
+
+    def recycle(self, new_class_instance):
+        new_class_instance.usage = self.usage
 
 def  parse_tokens(tokens_data):
     tokens = tokens_data['tokens']

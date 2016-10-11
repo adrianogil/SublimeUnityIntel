@@ -29,6 +29,19 @@ def parse_tokens(tokens_data):
     importer_tokens = []
     start_using_token_pos = -1
 
+    print(str(len(tokens)) + ' x ' + str(len(semantic_tokens)))
+    print(tokens)
+    print(semantic_tokens)
+
+    diff = []
+
+    for t in range(0, len(semantic_tokens)):
+        # Can't consider importers inside strings
+        if semantic_tokens[t] != tokens[t]:
+             diff.append(str(semantic_tokens[t]) + ' x ' + tokens[t])
+
+    print(diff)
+
     for t in range(0, total_tokens):
         # Can't consider importers inside strings
         if isinstance(semantic_tokens[t], CSharpElement):
@@ -39,7 +52,7 @@ def parse_tokens(tokens_data):
             importer_tokens.append(tokens[t])
         elif inside_using and tokens[t] == ';':
             inside_using = False
-            
+
             importer_tokens.append(tokens[t])
             print(current_imported_namespace)
             importer_instance = CSharpImporter(current_imported_namespace, importer_tokens, start_using_token_pos)
