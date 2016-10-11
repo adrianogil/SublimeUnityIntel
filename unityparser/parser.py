@@ -1,7 +1,6 @@
-import os, sys
+import os, sys, time
 import fnmatch
 from os.path import join
-
 import codecs
 
 __file__ = os.path.normpath(os.path.abspath(__file__))
@@ -44,11 +43,13 @@ class SymbolicParser:
             ('.cs') : self.parse_csharp_file, \
             ('.unity','.prefab','.asset') : self.parse_yaml_file \
         }
+        self.last_parse_time = {}
 
-    def parse_project(self, project_path, file_path):
+    def parse_project(self, file_path):
         print('parse_project')
-        project_path = parser_utils.get_project_path(project_path, file_path)
-        if project_path != '':
+        project_path = parser_utils.get_project_path('', file_path)
+        if project_path != '' and (not project_path in self.last_parse_time or (time.time() - self.last_parse_time[project_path]) > 300):
+            self.last_parse_time[project_path] = time.time()
             self.symbolic_data['parse']['yaml'] = yaml_parser.get_all_guid_files(project_path, parser_utils.parse_project)
 
     def parse_csharp_file(self, file):
@@ -70,7 +71,7 @@ class SymbolicParser:
     def parse_yaml_file(self, file):
         # yaml_parser
         if not 'yaml' in self.symbolic_data['parse']:
-            self.symbolic_data['parse']['yaml'] = yaml_parser.get_all_guid_files(parser_utils.get_project_path('', file))
+            self.symbolic_data['parse']['yaml'] = yaml_parser.get_all_guid_files(parser_utils.get_project_path('', file), parser_utils.parse_project)
         self.symbolic_data['parse'] = yaml_parser.parse_yaml(file, self.symbolic_data['parse'])
 
     def parse_file(self, file):

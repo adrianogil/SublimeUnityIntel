@@ -27,16 +27,9 @@ class SublimeUnityIntel(sublime_plugin.EventListener):
 
         if current_file is None:
             return
-        symbolic_parser.parse_file(current_file)
-
         # Parse the whole project one single time
-        if not current_file in last_parse_time or (time.time() - last_parse_time[current_file]) > 300:
-            last_parse_time[current_file] = time.time()
-            window_variables = view.window().extract_variables()
-            project_path = ''
-            if 'project_path' in window_variables:
-                project_path = window_variables["project_path"]
-            symbolic_parser.parse_project(project_path, current_file)
+        symbolic_parser.parse_project(current_file)
+        symbolic_parser.parse_file(current_file)
 
     def on_selection_modified_async(self, view):
         symbolic_parser.print_selection_info(view)

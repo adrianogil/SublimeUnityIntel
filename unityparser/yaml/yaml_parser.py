@@ -86,7 +86,7 @@ def parse_yaml(filename, parse_data):
         for go in gameobject_instances:
             if go.yaml_id == m.go_id:
                 go.add_component(m)
-                print("Add component " + m.guid + " to gameobject " + go.yaml_id)
+                # print("Add component " + m.guid + " to gameobject " + go.yaml_id)
                 break
         if m.guid in yaml_data['files_by_guid']:
             m.script_file_path = yaml_data['files_by_guid'][m.guid]
@@ -94,10 +94,8 @@ def parse_yaml(filename, parse_data):
             m.script_name = yaml_data['filenames_by_guid'][m.guid][:-3]
             m.file_path = filename
 
-            for s in parse_data['symbols']:
-                print('Symbol ' + s)
-                if s == m.script_name:
-                    parse_data['symbols'][s].add_usage(m)
+            if m.script_name in parse_data['symbols']:
+                parse_data['symbols'][m.script_name].add_usage(m)
 
     outline_data = []
     for go in gameobject_instances:
