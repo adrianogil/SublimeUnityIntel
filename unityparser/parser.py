@@ -26,12 +26,11 @@ from csharp.csharp_element import CSharpElement
 from csharp import csharp_importer_parser
 from csharp import csharp_class_parser
 
+import csharp
 import view_factory
 import parser_utils
 
 class SymbolicParser:
-
-
     def __init__(self):
         self.symbolic_data = { \
             'parse': { \
@@ -46,27 +45,63 @@ class SymbolicParser:
         self.last_parse_time = {}
 
     def parse_project(self, file_path):
-        print('parse_project')
         project_path = parser_utils.get_project_path('', file_path)
-        if project_path != '' and (not project_path in self.last_parse_time or (time.time() - self.last_parse_time[project_path]) > 300):
+        if project_path != '' and (not project_path in self.last_parse_time or (time.time() - self.last_parse_time[project_path]) > 6000):
+            print('parser::parse_project ' + project_path)
             self.last_parse_time[project_path] = time.time()
             self.symbolic_data['parse']['yaml'] = yaml_parser.get_all_guid_files(project_path, parser_utils.parse_project)
+            self.symbolic_data['parse'] = parser_utils.parse_project(project_path, self.symbolic_data['parse'], '*.cs', self.parse_csharp_project_wise, False)
+            self.symbolic_data['parse'] = parser_utils.parse_project(project_path, self.symbolic_data['parse'], '*.unity', self.parse_yaml_project_wise, False)
+            self.symbolic_data['parse'] = parser_utils.parse_project(project_path, self.symbolic_data['parse'], '*.prefab', self.parse_yaml_project_wise, False)
+            self.parse_csharp_internal_symbols()
+            # print(self.symbolic_data['parse']['symbols'])
+
+    def parse_yaml_project_wise(self, content, parse_data, root, filename, project_path):
+        file = join(root, filename)
+        print("Parsing file " + file)
+        self.parse_yaml_file(file)
+        return self.symbolic_data['parse']
+
+    def parse_csharp_project_wise(self, content, parse_data, root, filename, project_path):
+        file = join(root, filename)
+        print("Parsing file " + file)
+        self.parse_csharp_file(file)
+        return self.symbolic_data['parse']
+
+
+    def parse_csharp_internal_symbols(self):
+        csharp_symbols = self.symbolic_data['parse']['symbols']
+        for s in csharp_symbols:
+            c = csharp_symbols[s]
+            if isinstance(c, csharp.csharp_class_parser.CSharpClass):#c.element_type == "class":
+                symbol_base_info = []
+                for b in c.base_info:
+                    symbol = b
+                    if b in self.symbolic_data['parse']['symbols']:
+                        print(b)
+                        symbol = self.symbolic_data['parse']['symbols'][b]
+                        symbol.inherited_by.append(c)
+                    symbol_base_info.append(symbol)
+                c.base_info = symbol_base_info
 
     def parse_csharp_file(self, file):
-        # Parse file into a set of tokens
-        tokens_data = TokenParser().parse_file(file)
-        # print(tokens_data) # For debug purposes
-        tokens_data = csharp_importer_parser.parse_tokens(tokens_data)
-        tokens_data = csharp_class_parser.parse_tokens(tokens_data)
-        # Save data
-        self.symbolic_data['parse']['by_files'][file] = tokens_data
+        try:
+            # Parse file into a set of tokens
+            tokens_data = TokenParser().parse_file(file)
+            # print(tokens_data) # For debug purposes
+            tokens_data = csharp_importer_parser.parse_tokens(tokens_data)
+            tokens_data = csharp_class_parser.parse_tokens(tokens_data)
+            # Save data
+            self.symbolic_data['parse']['by_files'][file] = tokens_data
 
-        if 'classes' in tokens_data:
-            for c in tokens_data['classes']:
-                symbol_name = c.namespace + c.class_name
-                if symbol_name in self.symbolic_data['parse']['symbols']:
-                    self.symbolic_data['parse']['symbols'][symbol_name].recycle(c)
-                self.symbolic_data['parse']['symbols'][symbol_name] = c
+            if 'classes' in tokens_data:
+                for c in tokens_data['classes']:
+                    symbol_name = c.namespace + c.class_name
+                    if symbol_name in self.symbolic_data['parse']['symbols']:
+                        self.symbolic_data['parse']['symbols'][symbol_name].recycle(c)
+                    self.symbolic_data['parse']['symbols'][symbol_name] = c
+        except:
+             print("Unexpected error:" + str(sys.exc_info()[0]))
 
     def parse_yaml_file(self, file):
         # yaml_parser

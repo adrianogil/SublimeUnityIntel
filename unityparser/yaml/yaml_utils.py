@@ -24,6 +24,6 @@ def identify_guid(line):
             elif start_guid > 0 and (line[l] == '}' or line[l] == ','):
                 end_guid = l
                 guid = line[start_guid:end_guid]
-                print('yaml_utils::identify_guid - ' + guid)
+                # print('yaml_utils::identify_guid - ' + guid)
                 return guid
     return ''

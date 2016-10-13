@@ -69,8 +69,8 @@ def parse_tokens(tokens_data, class_region, class_name, class_instance):
     while t < end_region:
 
         if expected_default_value and tokens[t] == ';':
-            print('\t +Member ' + member_name + " with type " + member_type + \
-                " with default value " + member_default_value)
+            # print('\t +Member ' + member_name + " with type " + member_type + \
+                # " with default value " + member_default_value)
             expected_default_value = False
             member_default_value = ''
             t = t + 1
@@ -144,13 +144,13 @@ def parse_tokens(tokens_data, class_region, class_name, class_instance):
             else:
                 expected_default_value = False
                 create_field_instance(t+3)
-                print('\t +Member ' + member_name + " with type " + member_type)
+                # print('\t +Member ' + member_name + " with type " + member_type)
             t = t + 4
         else:
             t = t + 1
 
-    if number_of_members > 0:
-        print('\t +Member ' + member_name + " with type " + member_type)
+    # if number_of_members > 0:
+    #     print('\t +Member ' + member_name + " with type " + member_type)
 
     return tokens_data
 

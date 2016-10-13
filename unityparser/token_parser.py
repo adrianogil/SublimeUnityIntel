@@ -16,9 +16,11 @@ if __path__ not in sys.path:
 from csharp_instance import CSharpInstance
 import csharp_type
 
+import parser_utils
+
 class TokenParser:
     def parse_file(self, csharp_file):
-        with codecs.open(csharp_file, encoding="utf-8-sig") as f:
+        with codecs.open(csharp_file, encoding="utf-8-sig", errors='ignore') as f:
             content = f.readlines()
         total_lines = len(content)
 
@@ -54,7 +56,8 @@ class TokenParser:
                     inside_stream_comments = False
                 elif inside_stream_comments:
                     continue
-                elif inside_string and content[i][j] == string_element:
+                elif inside_string and not parser_utils.is_escaped_string_element(content[i], j) and \
+                     content[i][j] == string_element:
                     inside_string = False
                     string_element = ''
                     string_instance = CSharpInstance('literal_instance', csharp_type.get_string(), \
@@ -69,7 +72,8 @@ class TokenParser:
                     token_position.append((i,j))
                     token_position.append((i,j))
                     current_token = ''
-                elif not inside_string and (content[i][j] == "\"" or content[i][j] == "\'"):
+                elif not inside_string and not parser_utils.is_escaped_string_element(content[i], j) and \
+                         (content[i][j] == "\"" or content[i][j] == "\'"):
                     inside_string = True
                     string_element = content[i][j]
                     tokens.append(content[i][j])
@@ -90,18 +94,20 @@ class TokenParser:
 
         total_tokens = len(tokens)
 
+        # print(tokens)
+
         for t in range(0, total_tokens):
 
             enclosure_position.append(-1)
 
-            if self.is_opening_element(tokens[t]):
+            if self.is_opening_element(tokens[t], semantic_tokens[t]):
                 if tokens[t] in enclosure_elements:
                     list = enclosure_elements[tokens[t]]
                     list.append(t)
                     enclosure_elements[tokens[t]] = list
                 else:
                     enclosure_elements[tokens[t]] = [t]
-            elif self.is_enclosure_element(tokens[t]):
+            elif self.is_enclosure_element(tokens[t], semantic_tokens[t]):
                 if opposite_enclosure[tokens[t]] in enclosure_elements:
                     list = enclosure_elements[opposite_enclosure[tokens[t]]]
                     pos = list.pop()
@@ -119,19 +125,25 @@ class TokenParser:
     def is_empty(self, char_content):
         return char_content == ' ' or char_content == '\n' or char_content == '\t'
 
-    def is_opening_element(self, char_content):
-        return char_content == '{' or \
+    def is_opening_element(self, char_content, semantic_content):
+        if char_content == '\"' or \
+            char_content == '\'':
+            return True
+        return not isinstance(semantic_content, CSharpInstance) and \
+            (char_content == '{' or \
             char_content == '(' or \
-            char_content == '[' or \
-            char_content == '\"' or \
-            char_content == '\''
+            char_content == '[' )
 
-    def is_enclosure_element(self, char_content):
-        return char_content == '}' or \
+
+    def is_enclosure_element(self, char_content, semantic_content):
+        if char_content == '\"' or \
+            char_content == '\'':
+           return True
+        return not isinstance(semantic_content, CSharpInstance) and \
+            (char_content == '}' or \
             char_content == ')' or \
-            char_content == ']"' or \
-            char_content == '\"' or \
-            char_content == '\''
+            char_content == ']')
+
 
     def is_special_token(self, char_content):
         return char_content == '.' or \

@@ -146,10 +146,10 @@ def parse_tokens(tokens_data, class_region, class_name, class_object):
             else:
                 method_name = 'constructor' #tokens[t-5]
 
-            if is_static_method:
-                print('Found static method ' + method_name + " with return type '" + return_type + "' and access level " + method_access_level)
-            else:
-                print('Found method ' + method_name + " with return type '" + return_type + "' and access level " + method_access_level)
+            # if is_static_method:
+            #     print('Found static method ' + method_name + " with return type '" + return_type + "' and access level " + method_access_level)
+            # else:
+            #     print('Found method ' + method_name + " with return type '" + return_type + "' and access level " + method_access_level)
 
             method_instance = create_method_instance(t)
             tokens_data = csharp_class_method_param_parser.parse_tokens(tokens_data, (t+1, enclosure_position[t]), method_instance)

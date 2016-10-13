@@ -99,7 +99,7 @@ def parse_yaml(filename, parse_data):
 
     outline_data = []
     for go in gameobject_instances:
-        if go.transform.parent == None:
+        if go.transform != None and go.transform.parent == None:
             outline_data.append(go)
 
     file_data['game_objects'] = gameobject_instances

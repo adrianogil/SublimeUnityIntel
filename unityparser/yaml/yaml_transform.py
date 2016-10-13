@@ -51,7 +51,7 @@ class TransformYamlParser:
         line_size = len(line)
         if line.find("m_GameObject: {fileID: ") != -1:
             self.transform_go_id = yaml_utils.identify_game_object_id(line)
-            print('TransformYamlParser::parse_line - transform_go_id ' + self.transform_go_id)
+            # print('TransformYamlParser::parse_line - transform_go_id ' + self.transform_go_id)
             file_data['transform_id_by_gameobject_id'][self.transform_go_id] = self.current_transform_id
             file_data['gameobject_id_by_transform_id'][self.current_transform_id] = self.transform_go_id
             file_data['row_by_id'][self.current_transform_id] = self.current_transform_line

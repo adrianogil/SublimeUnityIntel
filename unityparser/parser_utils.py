@@ -2,12 +2,30 @@ import os
 import fnmatch
 from os.path import join
 
-def parse_project(project_path, content_data, file_extension, parse_function):
+def is_escaped_string_element(line, j):
+  if line[j] != '\'' and line[j] != '\"':
+    return False
+  if j == 0:
+      return False
+  escaped_string = False
+  j = j - 1
+  while j >= 0 and line[j] == '\\':
+      escaped_string = not escaped_string
+      j = j - 1
+  return escaped_string
+
+  # if j > 1 and line[j-1] == '\\' and line[j-2] == '\\':
+  #     return False
+  # if line[j-1] == '\\':
+  #     return True
+
+def parse_project(project_path, content_data, file_extension, parse_function, read_content=True):
     for root, subFolders, files in os.walk(project_path):
         for filename in fnmatch.filter(files, file_extension):
-            with open(join(root, filename)) as f:
-                content = f.readlines()
-
+            content = ''
+            if read_content:
+                with open(join(root, filename)) as f:
+                    content = f.readlines()
             content_data = parse_function(content, content_data, root, filename, project_path)
     return content_data
 

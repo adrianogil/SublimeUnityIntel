@@ -60,7 +60,7 @@ def parse_tokens(tokens_data, class_region, method_instance):
 
         if tokens[t] == ',':
             # New parameter
-            print('\t - parameter ' + parameter_name + " with type " + parameter_type)
+            # print('\t - parameter ' + parameter_name + " with type " + parameter_type)
             create_method_instance(t)
             parameter_type = ''
             parameter_name = ''
@@ -85,7 +85,7 @@ def parse_tokens(tokens_data, class_region, method_instance):
         t = t + 1
 
     if number_of_parameters > 0:
-        print('\t - parameter ' + parameter_name + " with type " + parameter_type)
+        # print('\t - parameter ' + parameter_name + " with type " + parameter_type)
         create_method_instance(t)
 
     tokens_data['params_data'] = params_data

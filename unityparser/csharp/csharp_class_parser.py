@@ -15,15 +15,17 @@ import csharp_class_body_parser
 class CSharpClass(CSharpElement):
 
     def __init__(self, csharp_class_name, tokens, token_pos):
-        super(CSharpClass, self).__init__('importer', tokens, token_pos)
+        super(CSharpClass, self).__init__('class', tokens, token_pos)
         self.namespace = ''
         self.class_name = csharp_class_name
+        self.base_info = []
+        self.inherited_by = []
         self.methods_data = []
         self.fields_data = []
         self.usage = []
 
     def add_usage(self, referee):
-        print('Added usage to ' + self.class_name + ' from ' + str(referee))
+        # print('Added usage to ' + self.class_name + ' from ' + str(referee))
         for u in self.usage:
             if referee.reference_file_path == u.reference_file_path and referee.definition_line == u.definition_line:
                 return
@@ -33,10 +35,20 @@ class CSharpClass(CSharpElement):
         self.fields_data.append(field_instance)
         field_instance.class_object = self
 
+    def print_simple_element_info(self):
+        return 'Class ' + self.class_name
+
     def print_element_info(self):
         class_info = '<b><a href="' + str(self.line_in_file) + '">Class ' + self.class_name + '</a></b>' + \
                     '<br>' + str(len(self.methods_data)) + " methods " + \
                     '<br>' + str(len(self.fields_data)) + " fields "
+        for b in self.base_info:
+            if isinstance(b, CSharpClass):
+                class_info = class_info + '<br>Inherits from ' + b.class_name + ' '
+            elif b == "MonoBehaviour":
+                class_info = class_info + '<br>Inherits from MonoBehaviour '
+        for c in self.inherited_by:
+            class_info = class_info + '<br>Inherited by ' + c.class_name + ' '
         yaml_reference_count = 0
         for u in self.usage:
             if u.reference_type == 'yaml':
@@ -55,6 +67,8 @@ class CSharpClass(CSharpElement):
 
     def recycle(self, new_class_instance):
         new_class_instance.usage = self.usage
+        new_class_instance.base_info = self.base_info
+        new_class_instance.inherited_by = self.inherited_by
 
 def  parse_tokens(tokens_data):
     tokens = tokens_data['tokens']
@@ -92,6 +106,7 @@ def  parse_tokens(tokens_data):
             tokens_data = csharp_class_body_parser.parse_tokens(tokens_data, (t+1, tokens_data['enclosure_position'][t]), class_name, class_instance)
             class_instance.line_in_file = positions[start_class_pos][0]
             class_instance.methods_data = tokens_data['method_data']
+            class_instance.base_info = classinfo_tokens
             classes_data.append(class_instance)
             for i in range(start_class_pos, t):
                 semantic_tokens[i] = class_instance
