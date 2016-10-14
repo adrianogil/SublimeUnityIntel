@@ -18,6 +18,7 @@ class CSharpClass(CSharpElement):
         super(CSharpClass, self).__init__('class', tokens, token_pos)
         self.namespace = ''
         self.class_name = csharp_class_name
+        self.symbol_name = csharp_class_name
         self.base_info = []
         self.inherited_by = []
         self.methods_data = []

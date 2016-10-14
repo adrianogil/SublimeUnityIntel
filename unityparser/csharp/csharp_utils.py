@@ -1,3 +1,22 @@
+def is_interface_keyword(token):
+    return len(token) == 9 and \
+        token[0] == 'i' and \
+        token[1] == 'n' and \
+        token[2] == 't' and \
+        token[3] == 'e' and \
+        token[4] == 'r' and \
+        token[5] == 'f' and \
+        token[6] == 'a' and \
+        token[7] == 'c' and \
+        token[8] == 'e'
+
+def is_class_keyword(token):
+    return len(token) == 5 and \
+        token[0] == 'c' and \
+        token[1] == 'l' and \
+        token[2] == 'a' and \
+        token[3] == 's' and \
+        token[4] == 's'
 
 def is_base_keyword(token):
     return len(token) == 4 and \

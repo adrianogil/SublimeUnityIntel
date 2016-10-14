@@ -25,10 +25,13 @@ from csharp.csharp_element import CSharpElement
 # from csharp import csharp_class_method_parser
 from csharp import csharp_importer_parser
 from csharp import csharp_class_parser
+from csharp import csharp_interface_parser
 
 import csharp
 import view_factory
 import parser_utils
+
+import pickle
 
 class SymbolicParser:
     def __init__(self):
@@ -54,6 +57,7 @@ class SymbolicParser:
             self.symbolic_data['parse'] = parser_utils.parse_project(project_path, self.symbolic_data['parse'], '*.unity', self.parse_yaml_project_wise, False)
             self.symbolic_data['parse'] = parser_utils.parse_project(project_path, self.symbolic_data['parse'], '*.prefab', self.parse_yaml_project_wise, False)
             self.parse_csharp_internal_symbols()
+            pickle.dump(self.symbolic_data, open(join(project_path, 'code_data.symbolic'), 'wb'))
             # print(self.symbolic_data['parse']['symbols'])
 
     def parse_yaml_project_wise(self, content, parse_data, root, filename, project_path):
@@ -91,12 +95,13 @@ class SymbolicParser:
             # print(tokens_data) # For debug purposes
             tokens_data = csharp_importer_parser.parse_tokens(tokens_data)
             tokens_data = csharp_class_parser.parse_tokens(tokens_data)
+            tokens_data = csharp_interface_parser.parse_tokens(tokens_data)
             # Save data
             self.symbolic_data['parse']['by_files'][file] = tokens_data
 
             if 'classes' in tokens_data:
                 for c in tokens_data['classes']:
-                    symbol_name = c.namespace + c.class_name
+                    symbol_name = c.namespace + c.symbol_name
                     if symbol_name in self.symbolic_data['parse']['symbols']:
                         self.symbolic_data['parse']['symbols'][symbol_name].recycle(c)
                     self.symbolic_data['parse']['symbols'][symbol_name] = c
