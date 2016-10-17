@@ -28,10 +28,10 @@ from csharp import csharp_class_parser
 from csharp import csharp_interface_parser
 
 import csharp
-import view_factory
 import parser_utils
-
 import pickle
+
+import selection_parser
 
 class SymbolicParser:
     def __init__(self):
@@ -46,6 +46,7 @@ class SymbolicParser:
             ('.unity','.prefab','.asset') : self.parse_yaml_file \
         }
         self.last_parse_time = {}
+        self.current_file = ''
 
     def parse_project(self, file_path):
         project_path = parser_utils.get_project_path('', file_path)
@@ -84,7 +85,10 @@ class SymbolicParser:
                     if b in self.symbolic_data['parse']['symbols']:
                         print(b)
                         symbol = self.symbolic_data['parse']['symbols'][b]
-                        symbol.inherited_by.append(c)
+                        if isinstance(symbol, csharp.csharp_class_parser.CSharpClass):
+                            symbol.inherited_by.append(c)
+                        elif isinstance(symbol, csharp.csharp_interface_parser.CSharpInterface):
+                            symbol.implemented_by.append(c)
                     symbol_base_info.append(symbol)
                 c.base_info = symbol_base_info
 
@@ -101,6 +105,12 @@ class SymbolicParser:
 
             if 'classes' in tokens_data:
                 for c in tokens_data['classes']:
+                    symbol_name = c.namespace + c.symbol_name
+                    if symbol_name in self.symbolic_data['parse']['symbols']:
+                        self.symbolic_data['parse']['symbols'][symbol_name].recycle(c)
+                    self.symbolic_data['parse']['symbols'][symbol_name] = c
+            if 'interfaces' in tokens_data:
+                for c in tokens_data['interfaces']:
                     symbol_name = c.namespace + c.symbol_name
                     if symbol_name in self.symbolic_data['parse']['symbols']:
                         self.symbolic_data['parse']['symbols'][symbol_name].recycle(c)
@@ -130,35 +140,15 @@ class SymbolicParser:
         if file == None:
             return
 
-        open_file = view_factory.get_open_file(view)
-        go_to_reference = view_factory.get_goto_reference(view, self.symbolic_data)
-        show_popup = view_factory.get_showpopup(view)
+        self.current_file = file
 
+        selection_parser.handle_selection(view, self)
 
-        if file.lower().endswith(('.unity','.prefab','.asset', '.meta')):
-            for region in view.sel():
-                selected_text = view.substr(region)
+    def get_yaml_data(self):
+        return self.symbolic_data['parse']['yaml']
 
-                if not yaml_parser.print_yaml_file_info(file, selected_text, self.symbolic_data['parse'], open_file, show_popup):
-                    if not yaml_parser.print_yaml_gameobject_info(file, selected_text, self.symbolic_data['parse'], go_to_reference, show_popup):
-                        yaml_parser.print_yaml_transform_info(file, selected_text, self.symbolic_data['parse'], go_to_reference, show_popup)
-        elif file.lower().endswith('.cs'):
-            for region in view.sel():
-                rowcol = view.rowcol(region.begin())
-                semantic_object = self.get_semantic_token(file, rowcol, True, True, True, view.substr(region))
-                # print('parser.py::print_selection_info - received ' + str(type(semantic_object)) + " " + \
-                    # str(type(CSharpClassMethod("",[],[]))) + \
-                    # str(isinstance(semantic_object, type(CSharpClassMethod("",[],[])))))
-                if semantic_object == None:
-                    # print('parser.py::print_selection_info - received None ')
-                    return
-                if isinstance(semantic_object, csharp_class_parser.CSharpClass) or  \
-                   isinstance(semantic_object, CSharpClassMethod):
-                    # print('parser.py::print_selection_info - show class_info ' + semantic_object.class_name)
-                    show_popup(semantic_object.print_element_info(), go_to_reference)
-                else:
-                    # print('parser.py::print_selection_info - It is not a CSharpClass instance')
-                    return
+    def get_current_file_data(self):
+        return self.symbolic_data['parse']['by_files'][self.current_file]
 
     # Print outline for current file
     # @param show_outline - method to exhibit outline

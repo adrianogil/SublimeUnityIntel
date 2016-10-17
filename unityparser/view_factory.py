@@ -1,23 +1,72 @@
 
-def get_showpopup(view):
-    def show_popup(text, action):
-        view.show_popup(text, on_navigate=action)
-    return show_popup
+class ViewFactory:
+    def __init__(self, view, symbolic_parser):
+        self.view = view
+        self.symbolic_parser = symbolic_parser
+        self.symbolic_data = symbolic_parser.symbolic_data
+        self.view_actions = {}
+        def load_action(action_id):
+            action_id = int(action_id)
+            if action_id in self.view_actions:
+                self.view_actions[action_id]()
+        self.selection_action = load_action
 
+    def clear_actions(self):
+        self.view_actions = {}
 
-def get_open_file(view):
-    def open_file(file):
-        view.window().open_file(file)
-    return open_file
+    def register_action(self, action_id, action):
+        self.view_actions[action_id] = action
 
-def get_goto_reference(view, symbolic_data):
-    def go_to_reference(id):
-        if view.window().active_view():
-            row = symbolic_data['parse']['by_files'][file]['row_by_id'][id]
-            col = 1
-            print("Trying to go to line " + str(row))
-            view.window().active_view().run_command(
-                    "goto_row_col",
-                    {"row": row, "col": col}
-            )
-    return go_to_reference
+    def show_popup(self, html):
+        self.view.show_popup(html, on_navigate=self.selection_action)
+
+    def get_showpopup(self):
+        def show_popup(text, action):
+            self.view.show_popup(text, on_navigate=action)
+        return show_popup
+
+    def get_open_file_action(self, file):
+        def open_file():
+            self.view.window().open_file(file)
+        return open_file
+
+    def get_open_file(self):
+        def open_file(file):
+            self.view.window().open_file(file)
+        return open_file
+
+    def get_goto_reference_action(self, yaml_id):
+        def go_to_reference():
+            if self.view.window().active_view():
+                row = self.symbolic_parser.get_current_file_data()['row_by_id'][yaml_id]
+                col = 1
+                print("Trying to go to line " + str(row))
+                self.view.window().active_view().run_command(
+                        "goto_row_col",
+                        {"row": row, "col": col}
+                )
+        return go_to_reference
+
+    def get_goto_reference(self):
+        def go_to_reference(id):
+            if self.view.window().active_view():
+                row = self.symbolic_parser.get_current_file_data()['row_by_id'][id]
+                col = 1
+                print("Trying to go to line " + str(row))
+                self.view.window().active_view().run_command(
+                        "goto_row_col",
+                        {"row": row, "col": col}
+                )
+        return go_to_reference
+
+    def get_goto_line(self):
+        def go_to_line(line):
+            if self.view.window().active_view():
+                row = line
+                col = 1
+                print("Trying to go to line " + str(row))
+                self.view.window().active_view().run_command(
+                        "goto_row_col",
+                        {"row": row, "col": col}
+                )
+        return go_to_line
