@@ -73,18 +73,25 @@ class SmartdebugCommand(sublime_plugin.TextCommand):
                 view.replace(edit, region, debug_log)
 
 class GotoRowColCommand(sublime_plugin.TextCommand):
-        def run(self, edit, row, col):
-                print("INFO: Input: " + str({"row": row, "col": col}))
+        def run(self, edit, row, col, file=None):
+            print("INFO: Input: " + str({"row": row, "col": col}))
+
+            view = self.view
+            if file != None:
+                print('Opening file ' + file)
+                file_loc = "%s:%s" % (file, row)
+                view = self.view.window().open_file(file_loc, sublime.ENCODED_POSITION)
+            else:
                 # rows and columns are zero based, so subtract 1
                 # convert text to int
                 (row, col) = (int(row) - 1, int(col) - 1)
                 if row > -1 and col > -1:
                         # col may be greater than the row length
-                        col = min(col, len(self.view.substr(self.view.full_line(self.view.text_point(row, 0))))-1)
+                        col = min(col, len(view.substr(view.full_line(view.text_point(row, 0))))-1)
                         print("INFO: Calculated: " + str({"row": row, "col": col})) # r1.01 (->)
-                        self.view.sel().clear()
-                        self.view.sel().add(sublime.Region(self.view.text_point(row, col)))
-                        self.view.show(self.view.text_point(row, col))
+                        view.sel().clear()
+                        view.sel().add(sublime.Region(view.text_point(row, col)))
+                        view.show(view.text_point(row, col))
                 else:
                         print("ERROR: row or col are less than zero")
 

@@ -30,6 +30,8 @@ def handle_selection(view, symbolic_parser):
         show_view_method = yaml_selection.show_view
     elif file.lower().endswith('.cs'):
         show_view_method = csharp_selection.show_view
+    else:
+        return
 
     for region in view.sel():
             selected_text = view.substr(region)

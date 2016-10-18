@@ -47,10 +47,12 @@ class SymbolicParser:
         }
         self.last_parse_time = {}
         self.current_file = ''
+        self.current_project_path = ''
 
     def parse_project(self, file_path):
         project_path = parser_utils.get_project_path('', file_path)
         if project_path != '' and (not project_path in self.last_parse_time or (time.time() - self.last_parse_time[project_path]) > 6000):
+            self.current_project_path = project_path
             print('parser::parse_project ' + project_path)
             self.last_parse_time[project_path] = time.time()
             self.symbolic_data['parse']['yaml'] = yaml_parser.get_all_guid_files(project_path, parser_utils.parse_project)
@@ -109,6 +111,8 @@ class SymbolicParser:
                     if symbol_name in self.symbolic_data['parse']['symbols']:
                         self.symbolic_data['parse']['symbols'][symbol_name].recycle(c)
                     self.symbolic_data['parse']['symbols'][symbol_name] = c
+                    c.file_name = file
+                    c.project_path = self.current_project_path
             if 'interfaces' in tokens_data:
                 for c in tokens_data['interfaces']:
                     symbol_name = c.namespace + c.symbol_name

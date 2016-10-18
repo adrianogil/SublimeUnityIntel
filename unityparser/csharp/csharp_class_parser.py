@@ -24,6 +24,8 @@ class CSharpClass(CSharpElement):
         self.methods_data = []
         self.fields_data = []
         self.usage = []
+        self.file_name = ''
+        self.project_path = ''
 
     def add_usage(self, referee):
         # print('Added usage to ' + self.class_name + ' from ' + str(referee))
@@ -39,24 +41,100 @@ class CSharpClass(CSharpElement):
     def print_simple_element_info(self):
         return 'Class ' + self.class_name
 
-    def print_element_info(self):
-        class_info = '<b><a href="' + str(self.line_in_file) + '">Class ' + self.class_name + '</a></b>' + \
+    def print_yaml_references_from_file(self, view_factory, yaml_path, yaml_instance_list):
+        view_factory.clear_actions()
+        total_ref = len(yaml_instance_list)
+
+        action_id = 0
+        html = '<b><a href="' + str(action_id) + '">' + str(total_ref) + ' References from<br>' + yaml_path + ':</a></b><br>'
+        def back_to_yaml_references():
+            self.print_yaml_references(view_factory)
+        action = back_to_yaml_references
+        view_factory.register_action(action_id, action)
+
+        for u in yaml_instance_list:
+            action_id = action_id + 1
+            html = html + '<br><a href="' + str(action_id) + '">From line ' + str(u.definition_line) + '</a>'
+            action = view_factory.get_goto_file_reference_action(u.reference_file_path, u.definition_line)
+            view_factory.register_action(action_id, action)
+
+        view_factory.show_popup(html, 500)
+
+    def print_yaml_references(self, view_factory):
+        view_factory.clear_actions()
+
+        html = '<b>References from YAML files</b>'
+
+        p_path_size = len(self.project_path)
+
+        yaml_usage = {}
+
+        for u in self.usage:
+            if u.reference_type == 'yaml':
+                if u.reference_file_path in yaml_usage:
+                    yaml_usage[u.reference_file_path].append(u)
+                else:
+                    yaml_usage[u.reference_file_path] = [u]
+
+        action_id = 0
+
+        for ypath in yaml_usage:
+            total_ref = len(yaml_usage[ypath])
+            yaml_path = ypath[p_path_size:]
+
+            action_id = action_id + 1
+            html = html + '<br><br><a href="' + str(action_id) + '">- ' + str(total_ref) + ' References from <br>' + yaml_path + "</a>"
+            def yaml_reference_selection():
+                self.print_yaml_references_from_file(view_factory, yaml_path, yaml_usage[ypath])
+            action = yaml_reference_selection
+            view_factory.register_action(action_id, action)
+
+            # for u in yaml_usage[ypath]:
+            #     action_id = action_id + 1
+            #     html = html + '<br><a href="' + str(action_id) + '">Referenced from line ' + str(u.definition_line) + '</a>'
+            #     action = view_factory.get_goto_file_reference_action(u.reference_file_path, u.definition_line)
+            #     view_factory.register_action(action_id, action)
+
+        view_factory.show_popup(html, 500)
+
+    def print_element_info(self, view_factory):
+        view_factory.clear_actions()
+
+        action_id = 1
+        class_info = '<b><a href="' + str(action_id) + '">Class ' + self.class_name + '</a></b>' + \
                     '<br>' + str(len(self.methods_data)) + " methods " + \
                     '<br>' + str(len(self.fields_data)) + " fields "
+        action = view_factory.get_goto_line_action(self.line_in_file)
+        view_factory.register_action(action_id, action)
+
         for b in self.base_info:
             if isinstance(b, CSharpClass):
-                class_info = class_info + '<br>Inherits from ' + b.class_name + ' '
+                action_id = action_id + 1
+                class_info = class_info + '<br>Inherits from <a href="' + str(action_id) + '">' + b.class_name + '</a> '
+                action = view_factory.get_goto_file_reference_action(b.file_name, b.line_in_file)
+                view_factory.register_action(action_id, action)
             elif b == "MonoBehaviour":
                 class_info = class_info + '<br>Inherits from MonoBehaviour '
         for c in self.inherited_by:
-            class_info = class_info + '<br>Inherited by ' + c.class_name + ' '
+            action_id = action_id + 1
+            class_info = class_info + '<br>Inherited by <a href="' + str(action_id) + '">' + c.class_name + '</a> '
+            action = view_factory.get_goto_file_reference_action(c.file_name, c.line_in_file)
+            view_factory.register_action(action_id, action)
         yaml_reference_count = 0
         for u in self.usage:
             if u.reference_type == 'yaml':
                 yaml_reference_count = yaml_reference_count + 1
             # class_info = class_info + '<br> Referencied by line ' + str(u.definition_line) + '<br>' + u.reference_file_path
-        class_info = class_info + '<br>  ' + str(yaml_reference_count) + ' references from YAML files'
+        if yaml_reference_count > 0:
+            action_id = action_id + 1
+            class_info = class_info + '<br>  <a href="' + str(action_id) + '">' + str(yaml_reference_count) + ' references from YAML files</a>'
+            def show_yaml_references_popup():
+                self.print_yaml_references(view_factory)
+            action = show_yaml_references_popup
+            view_factory.register_action(action_id, action)
         # print(class_info)
+        view_factory.show_popup(class_info)
+
         return class_info
 
     def print_outline(self):

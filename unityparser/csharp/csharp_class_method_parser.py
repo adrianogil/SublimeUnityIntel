@@ -16,7 +16,7 @@ import csharp_utils
 class CSharpClassMethod(CSharpElement):
 
     def __init__(self, csharp_method_name, tokens, token_pos):
-        super(CSharpClassMethod, self).__init__('importer', tokens, token_pos)
+        super(CSharpClassMethod, self).__init__('class-method', tokens, token_pos)
         self.method_name = csharp_method_name
         self.method_type = ''
         self.method_access_level = ''
@@ -31,9 +31,13 @@ class CSharpClassMethod(CSharpElement):
         self.params.append(param_object)
         param_object.method_object = self
 
-    def print_element_info(self):
-        method_info = '<b><a href="' + str(self.line_in_file) + '">Method ' + self.method_name + '</a></b>'
+    def print_element_info(self, view_factory):
+        action_id = 1
+        method_info = '<b><a href="' + str(action_id) + '">Method ' + self.method_name + '</a></b>'
+        action = view_factory.get_goto_line_action(self.line_in_file)
+        view_factory.register_action(action_id, action)
         # print(method_info)
+        view_factory.show_popup(method_info)
         return method_info
 
     def print_outline(self):

@@ -17,8 +17,8 @@ class ViewFactory:
     def register_action(self, action_id, action):
         self.view_actions[action_id] = action
 
-    def show_popup(self, html):
-        self.view.show_popup(html, on_navigate=self.selection_action)
+    def show_popup(self, html, width=300):
+        self.view.show_popup(html, on_navigate=self.selection_action, max_width=width)
 
     def get_showpopup(self):
         def show_popup(text, action):
@@ -34,6 +34,18 @@ class ViewFactory:
         def open_file(file):
             self.view.window().open_file(file)
         return open_file
+
+    def get_goto_file_reference_action(self, file, line):
+        def go_to_reference():
+            if self.view.window().active_view():
+                row = line
+                col = 1
+                print("Trying to go to line " + str(row))
+                self.view.window().active_view().run_command(
+                        "goto_row_col",
+                        {"row": row, "col": col, "file": file}
+                )
+        return go_to_reference
 
     def get_goto_reference_action(self, yaml_id):
         def go_to_reference():
@@ -58,6 +70,18 @@ class ViewFactory:
                         {"row": row, "col": col}
                 )
         return go_to_reference
+
+    def get_goto_line_action(self, line):
+        def go_to_line():
+            if self.view.window().active_view():
+                row = line
+                col = 1
+                print("Trying to go to line " + str(row))
+                self.view.window().active_view().run_command(
+                        "goto_row_col",
+                        {"row": row, "col": col}
+                )
+        return go_to_line
 
     def get_goto_line(self):
         def go_to_line(line):
