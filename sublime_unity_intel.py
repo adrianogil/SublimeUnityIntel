@@ -50,21 +50,20 @@ class OutlineCommand(sublime_plugin.TextCommand):
         view = self.view
         current_file = view.file_name()
 
-        def go_to_reference(line):
-            # file = ref[0]
-            if view.window().active_view():
-                row = int(line)+1
-                col = 1
-                print("Trying to go to line " + str(row))
-                view.window().active_view().run_command(
-                        "goto_row_col",
-                        {"row": row, "col": col}
-                )
+        symbolic_parser.print_outline(current_file, view, sublime.MONOSPACE_FONT)
 
-        def show_popup(text):
-            view.show_popup(text, on_navigate=go_to_reference)
+class FieldoutlineCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        print('Running command "Outline"')
+        view = self.view
+        current_file = view.file_name()
 
-        symbolic_parser.print_outline(current_file, show_popup)
+        symbolic_parser.print_fields_outline(current_file, view, sublime.MONOSPACE_FONT)
+
+class InsertTextOnSelectionCommand(sublime_plugin.TextCommand):
+    def run(self, edit, text):
+        for region in self.view.sel():
+            self.view.replace(edit, region, text)
 
 class SmartdebugCommand(sublime_plugin.TextCommand):
     def run(self, edit):

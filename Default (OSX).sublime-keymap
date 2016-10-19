@@ -4,6 +4,10 @@
 	"command": "outline",
 },
 {
+    "keys": ["super+shift+h"],
+    "command": "fieldoutline",
+},
+{
     "keys": ["super+shift+k"],
     "command": "smartdebug"
 }

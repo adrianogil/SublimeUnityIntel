@@ -157,22 +157,65 @@ class SymbolicParser:
     # Print outline for current file
     # @param show_outline - method to exhibit outline
     #                       should receive a text and navigation method
-    def print_outline(self, file, show_outline):
+    def print_outline(self, file, view, font):
         file_data = self.symbolic_data['parse']['by_files'][file]
+
+        class_field = []
+        current_class_fields = []
 
         if 'outline_data' in file_data:
             outline_data = file_data['outline_data']
-            text_outline = ''
             index = 0
 
             for c in outline_data:
-                if index > 0:
-                    text_outline = text_outline + '<br>'
-                text_outline = text_outline + c.print_outline()
-                index = index + 1
+                elements, element_info = c.get_elements_info()
+                for i in range(0, len(elements)):
+                    class_field.append(elements[i])
+                    current_class_fields.append(element_info[i])
 
-            # print(class_outline)
-            show_outline(text_outline)
+            def choice_field(choice):
+                if choice < 0 or choice >= len(class_field):
+                    return
+
+                view.window().active_view().run_command(
+                        "goto_row_col",
+                        {"row": class_field[choice].definition_line+1, "col": 1}
+                )
+
+            view.window().show_quick_panel(current_class_fields, choice_field, font)
+
+    # Print class variable outline for current class
+    # @param show_outline - method to exhibit outline
+    #                       should receive a text and navigation method
+    def print_fields_outline(self, file, view, font):
+        if not file.lower().endswith(('.cs')):
+            return
+
+        file_data = self.symbolic_data['parse']['by_files'][file]
+
+        class_field = []
+        current_class_fields = []
+
+        if 'outline_data' in file_data:
+            outline_data = file_data['outline_data']
+            index = 0
+
+            for c in outline_data:
+                for f in c.fields_data:
+                    class_field.append(f.field_name)
+                    current_class_fields.append(f.print_element_info())
+
+            def choice_field(choice):
+                if choice < 0 or choice >= len(class_field):
+                    return
+
+                view.window().active_view().run_command(
+                        "insert_text_on_selection",
+                        {"text": class_field[choice]}
+                )
+
+            view.window().show_quick_panel(current_class_fields, choice_field, font)
+
 
     def get_semantic_token(self, file, rowcol, usingcol = False, sameLine=False, token_verification=False, token_selected=''):
         file_data = self.symbolic_data['parse']['by_files'][file]

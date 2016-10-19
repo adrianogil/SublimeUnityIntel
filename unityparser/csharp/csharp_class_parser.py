@@ -46,6 +46,16 @@ class CSharpClass(CSharpElement):
     def print_simple_element_info(self):
         return 'Class ' + self.class_name
 
+    def get_elements_info(self):
+        elements = [self]
+        elements_info = [self.print_simple_element_info()]
+
+        for m in self.methods_data:
+            elements.append(m)
+            elements_info.append(m.print_simple_element_info())
+
+        return (elements, elements_info)
+
     def print_yaml_references_from_file(self, view_factory, yaml_path, yaml_instance_list):
         view_factory.clear_actions()
         total_ref = len(yaml_instance_list)

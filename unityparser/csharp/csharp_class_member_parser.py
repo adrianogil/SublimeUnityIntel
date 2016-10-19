@@ -23,6 +23,9 @@ class CSharpClassField(CSharpElement):
         self.is_static = False
         self.class_object = None
 
+    def print_element_info(self):
+        return self.field_type + ' ' + self.field_name
+
 # class_region = (token_start, token_end) of enclosure class
 def parse_tokens(tokens_data, class_region, class_name, class_instance):
 

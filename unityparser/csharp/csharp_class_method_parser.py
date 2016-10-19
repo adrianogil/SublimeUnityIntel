@@ -26,10 +26,21 @@ class CSharpClassMethod(CSharpElement):
         self.is_virtual = False
         self.class_object = None
         self.params = []
+        self.definition_line = 0
 
     def add_param(self, param_object):
         self.params.append(param_object)
         param_object.method_object = self
+
+    def print_simple_element_info(self):
+        access_notation = '* '
+        if self.method_access_level == 'public':
+            access_notation = '+ '
+        elif self.method_access_level == 'protected':
+            access_notation = '# '
+        elif self.method_access_level == 'private':
+            access_notation = '- '
+        return access_notation + 'method ' + self.method_name
 
     def print_element_info(self, view_factory):
         action_id = 1
@@ -98,6 +109,7 @@ def parse_tokens(tokens_data, class_region, class_name, class_object):
         method_instance.method_type = return_type
         method_instance.method_access_level = method_access_level
         method_instance.line_in_file = tokens_data['token_position'][start_method_pos][0]
+        method_instance.definition_line = tokens_data['token_position'][start_method_pos][0]
         method_instance.is_static = is_static_method
         method_instance.is_constructor = is_constructor
         method_instance.is_virtual = is_virtual
