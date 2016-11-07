@@ -1,17 +1,26 @@
 [
 {
-    "id" : "sublimecsharpoutline",
-    "caption" : "uniity",
+    "id" : "tools",
     "children":
-	[
-	{
-		"caption" : "run",
-		"command" : "outline"
-	},
-    {
-        "caption" : "debug",
-        "command" : "debugintel"
-    }
-	]
+    [
+        {
+            "caption" : "Unity Parser",
+            "children":
+        	[
+        	{
+                "caption" : "Parse Project",
+                "command" : "parse_unity_project"
+            },
+            {
+        		"caption" : "run",
+        		"command" : "outline"
+        	},
+            {
+                "caption" : "debug",
+                "command" : "debugintel"
+            }
+        	]
+        }
+    ]
 }
 ]

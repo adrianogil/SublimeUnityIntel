@@ -27,12 +27,20 @@ class SublimeUnityIntel(sublime_plugin.EventListener):
 
         if current_file is None:
             return
-        # Parse the whole project one single time
-        symbolic_parser.parse_project(current_file)
         symbolic_parser.parse_file(current_file)
 
     def on_selection_modified_async(self, view):
         symbolic_parser.print_selection_info(view)
+
+class ParseUnityProjectCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        current_file = self.view.file_name()
+        print("ParseUnityProjectCommand -> parse project from " + str(current_file))
+
+        if current_file is None:
+            return
+        # Parse the whole project one single time
+        symbolic_parser.parse_project(current_file)
 
 class DebugintelCommand(sublime_plugin.TextCommand):
     def run(self, edit):
