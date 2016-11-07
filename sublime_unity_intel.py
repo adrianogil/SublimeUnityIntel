@@ -17,8 +17,6 @@ from unityparser.parser import SymbolicParser
 
 symbolic_parser = SymbolicParser()
 
-last_parse_time = {}
-
 class SublimeUnityIntel(sublime_plugin.EventListener):
     # Parse current file whenever the view gains focus
     def on_activated_async(self, view):

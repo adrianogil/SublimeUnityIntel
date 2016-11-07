@@ -23,6 +23,7 @@ class CSharpClass(CSharpElement):
         self.inherited_by = []
         self.methods_data = []
         self.fields_data = []
+        self.properties_data = []
         self.usage = []
         self.file_name = ''
         self.project_path = ''
@@ -33,6 +34,10 @@ class CSharpClass(CSharpElement):
             if referee.reference_file_path == u.reference_file_path and referee.definition_line == u.definition_line:
                 return
         self.usage.append(referee)
+
+    def add_property(self, property_instance):
+        self.properties_data.append(property_instance)
+        property_instance.class_object = self
 
     def add_field(self, field_instance):
         self.fields_data.append(field_instance)
@@ -103,7 +108,8 @@ class CSharpClass(CSharpElement):
         action_id = 1
         class_info = '<b><a href="' + str(action_id) + '">Class ' + self.class_name + '</a></b>' + \
                     '<br>' + str(len(self.methods_data)) + " methods " + \
-                    '<br>' + str(len(self.fields_data)) + " fields "
+                    '<br>' + str(len(self.fields_data)) + " fields " + \
+                    '<br>' + str(len(self.properties_data)) + " properties "
         action = view_factory.get_goto_line_action(self.line_in_file)
         view_factory.register_action(action_id, action)
 
