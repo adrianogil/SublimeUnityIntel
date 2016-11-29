@@ -60,6 +60,7 @@ class SymbolicParser:
             self.symbolic_data['parse'] = parser_utils.parse_project(project_path, self.symbolic_data['parse'], '*.unity', self.parse_yaml_project_wise, False)
             self.symbolic_data['parse'] = parser_utils.parse_project(project_path, self.symbolic_data['parse'], '*.prefab', self.parse_yaml_project_wise, False)
             self.parse_csharp_internal_symbols()
+            self.parse_csharp_behaviors_events()
             pickle.dump(self.symbolic_data, open(join(project_path, 'code_data.symbolic'), 'wb'))
             # print(self.symbolic_data['parse']['symbols'])
 
@@ -93,6 +94,35 @@ class SymbolicParser:
                             symbol.implemented_by.append(c)
                     symbol_base_info.append(symbol)
                 c.base_info = symbol_base_info
+
+    def parse_csharp_behaviors_events(self):
+        print('parse_csharp_behaviors_events - Start')
+        csharp_symbols = self.symbolic_data['parse']['symbols']
+        behaviors_events = { 'Awake' : [],  'Start' : [], 'Update' : [] }
+        for s in csharp_symbols:
+            c = csharp_symbols[s]
+            if self.is_monobehavior(c):
+                print(c.class_name + ' is monobehaviour')
+                for m in c.methods_data:
+                    if self.is_behavior_event(m.method_name):
+                        print('Added ' + c.class_name + ' to event ' + m.method_name)
+                        event_list = behaviors_events[m.method_name]
+                        event_list.append(c)
+                        behaviors_events[m.method_name] = event_list
+        self.symbolic_data['parse']['behaviors_events'] = behaviors_events
+        print('parse_csharp_behaviors_events - Finish')
+
+
+    def is_monobehavior(self, symbol):
+        base_class = symbol
+        while hasattr(base_class, 'base_info') and len(base_class.base_info) > 0:
+            base_class = base_class.base_info[0]
+            if base_class == 'MonoBehaviour':
+                return True
+        return False
+
+    def is_behavior_event(self, method_name):
+        return method_name == 'Awake' or method_name == 'Start' or method_name == 'Update'
 
     def parse_csharp_file(self, file):
         try:
@@ -251,3 +281,20 @@ class SymbolicParser:
             return semantic_object.get_debug_log()
         else:
             return ""
+
+    def show_unity_behaviors_events(self, view, font):
+        # Allow user to choose a behavior event
+        events = ['Awake', 'Start', 'Update']
+        def choice_field(choice):
+                if choice < 0 or choice >= len(events):
+                    return
+
+                if 'behaviors_events' in self.symbolic_data['parse']:
+                    for c in self.symbolic_data['parse']['behaviors_events'][events[choice]]:
+                        print(c.class_name)
+
+        view.window().show_quick_panel(events, choice_field, font)
+
+        # Create a buffer with the result
+
+        #

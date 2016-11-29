@@ -77,6 +77,11 @@ class SmartdebugCommand(sublime_plugin.TextCommand):
                 debug_log = symbolic_parser.print_debuglog(file, rowcol)
                 view.replace(edit, region, debug_log)
 
+class UnityBehaviorsEvents(sublime_plugin.TextCommand):
+    def run(self, edit):
+        print('Running command "DebugLog"')
+        symbolic_parser.show_unity_behaviors_events(self.view, sublime.MONOSPACE_FONT)
+
 class GotoRowColCommand(sublime_plugin.TextCommand):
         def run(self, edit, row, col, file=None):
             print("INFO: Input: " + str({"row": row, "col": col}))

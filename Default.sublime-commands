@@ -1,0 +1,5 @@
+[
+    {   "caption": "UnityIntel: Show classes attached to MonoBehaviour events",
+        "command": "unity_behaviors_events"
+    }
+]
