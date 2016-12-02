@@ -32,6 +32,7 @@ import parser_utils
 import pickle
 
 import selection_parser
+import view_factory
 
 class SymbolicParser:
     def __init__(self):
@@ -98,7 +99,7 @@ class SymbolicParser:
     def parse_csharp_behaviors_events(self):
         print('parse_csharp_behaviors_events - Start')
         csharp_symbols = self.symbolic_data['parse']['symbols']
-        behaviors_events = { 'Awake' : [],  'Start' : [], 'Update' : [] }
+        behaviors_events = { 'Awake' : [],  'Start' : [], 'Update' : [], 'OnEnable' : [], 'OnDisable' : [] }
         for s in csharp_symbols:
             c = csharp_symbols[s]
             if self.is_monobehavior(c):
@@ -107,7 +108,7 @@ class SymbolicParser:
                     if self.is_behavior_event(m.method_name):
                         print('Added ' + c.class_name + ' to event ' + m.method_name)
                         event_list = behaviors_events[m.method_name]
-                        event_list.append(c)
+                        event_list.append(m)
                         behaviors_events[m.method_name] = event_list
         self.symbolic_data['parse']['behaviors_events'] = behaviors_events
         print('parse_csharp_behaviors_events - Finish')
@@ -122,7 +123,11 @@ class SymbolicParser:
         return False
 
     def is_behavior_event(self, method_name):
-        return method_name == 'Awake' or method_name == 'Start' or method_name == 'Update'
+        return method_name == 'Awake' or \
+            method_name == 'Start' or \
+            method_name == 'Update' or \
+            method_name == 'OnEnable' or \
+            method_name == 'OnDisable'
 
     def parse_csharp_file(self, file):
         try:
@@ -283,15 +288,43 @@ class SymbolicParser:
             return ""
 
     def show_unity_behaviors_events(self, view, font):
+
         # Allow user to choose a behavior event
-        events = ['Awake', 'Start', 'Update']
+        view_factory_instance = view_factory.ViewFactory(view, self)
+
+        events = ['Awake', 'Start', 'Update', 'OnEnable', 'OnDisable']
         def choice_field(choice):
                 if choice < 0 or choice >= len(events):
                     return
 
+                print('show_unity_behaviors_events::choice_field')
+
                 if 'behaviors_events' in self.symbolic_data['parse']:
-                    for c in self.symbolic_data['parse']['behaviors_events'][events[choice]]:
-                        print(c.class_name)
+
+                    def get_class_name(method):
+                        return method.class_object.class_name
+
+                    events_method = self.symbolic_data['parse']['behaviors_events'][events[choice]]
+                    events_method = sorted(events_method, key=get_class_name)
+
+                    html = '<b> Methods attached to ' + events[choice] + ' event: </b> <br> Found <b>' + str(len(events_method)) + \
+                            '</b> Monobehaviours <br> '
+                    action_id = 0
+                    for m in events_method:
+                        c = m.class_object
+                        html = html + '<a href="' + str(action_id) + '">'  + c.class_name + '.' + events[choice] + '</a><br>'
+                        # print(c.file_name)
+                        action = view_factory_instance.get_goto_file_reference_action(c.file_name, int(m.line_in_file)+1)
+                        view_factory_instance.register_action(action_id, action)
+                        action_id = action_id + 1
+                        # print(c.class_name)
+                    view_factory_instance.show_popup(html)
+
+
+        # popup_text = '<b>GameObject: ' + parser_data['by_files'][file]['gameobject_name_by_id'][selected_text] + \
+        #     '</b><br><a href="' + selected_text + '">Show definition </a> <br>' + \
+        #             '<a href="'+ parser_data['by_files'][file]['transform_id_by_gameobject_id'][selected_text] + \
+        #             '">Show Transform component</a>'
 
         view.window().show_quick_panel(events, choice_field, font)
 
