@@ -83,18 +83,7 @@ class SymbolicParser:
         for s in csharp_symbols:
             c = csharp_symbols[s]
             if isinstance(c, csharp.csharp_class_parser.CSharpClass):#c.element_type == "class":
-                symbol_base_info = []
-                for b in c.base_info:
-                    symbol = b
-                    if b in self.symbolic_data['parse']['symbols']:
-                        print(b)
-                        symbol = self.symbolic_data['parse']['symbols'][b]
-                        if isinstance(symbol, csharp.csharp_class_parser.CSharpClass):
-                            symbol.inherited_by.append(c)
-                        elif isinstance(symbol, csharp.csharp_interface_parser.CSharpInterface):
-                            symbol.implemented_by.append(c)
-                    symbol_base_info.append(symbol)
-                c.base_info = symbol_base_info
+                c.parse_symbols(self.symbolic_data['parse']['symbols'])
 
     def parse_csharp_behaviors_events(self):
         print('parse_csharp_behaviors_events - Start')

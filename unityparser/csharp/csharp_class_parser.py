@@ -9,6 +9,7 @@ if __path__ not in sys.path:
     sys.path.insert(0, __path__)
 
 from csharp_element import CSharpElement
+from csharp_reference import CSharpReference
 
 import csharp_class_body_parser
 
@@ -27,6 +28,7 @@ class CSharpClass(CSharpElement):
         self.usage = []
         self.file_name = ''
         self.project_path = ''
+        self.referenced = []
 
     def add_usage(self, referee):
         # print('Added usage to ' + self.class_name + ' from ' + str(referee))
@@ -55,6 +57,32 @@ class CSharpClass(CSharpElement):
             elements_info.append(m.print_simple_element_info())
 
         return (elements, elements_info)
+
+    def parse_symbols(self, symbols_list):
+        symbol_base_info = []
+        for f in self.fields_data:
+            symbol = f.field_type
+            if symbol in symbols_list:
+                element = symbols_list[symbol]
+                if element.element_type == 'class':
+                    ref = CSharpReference()
+                    ref.reference_object = f
+                    ref.line_in_file = f.line_in_file
+                    ref.file_name = self.file_name
+                    print(self.class_name + ' has a field that references ' + symbol)
+                    element.referenced.append(ref)
+
+        for b in self.base_info:
+            symbol = b
+            if b in symbols_list:
+                print(b)
+                symbol = symbols_list[b]
+                if symbol.element_type == 'class':
+                    symbol.inherited_by.append(self)
+                elif symbol.element_type == 'interface':
+                    symbol.implemented_by.append(self)
+            symbol_base_info.append(symbol)
+        self.base_info = symbol_base_info
 
     def print_yaml_references_from_file(self, view_factory, yaml_path, yaml_instance_list):
         view_factory.clear_actions()
@@ -148,6 +176,12 @@ class CSharpClass(CSharpElement):
                 self.print_yaml_references(view_factory)
             action = show_yaml_references_popup
             view_factory.register_action(action_id, action)
+        total_referenced = len(self.referenced)
+        if total_referenced > 0:
+            ref_label = ' references'
+            if total_referenced == 1:
+                ref_label =' reference'
+            class_info = class_info + '<br>' + str(total_referenced) + ref_label + ' from another classes '
         # print(class_info)
         view_factory.show_popup(class_info)
 
@@ -164,6 +198,7 @@ class CSharpClass(CSharpElement):
         new_class_instance.usage = self.usage
         new_class_instance.base_info = self.base_info
         new_class_instance.inherited_by = self.inherited_by
+        new_class_instance.referenced = self.referenced
 
 def  parse_tokens(tokens_data):
     tokens = tokens_data['tokens']

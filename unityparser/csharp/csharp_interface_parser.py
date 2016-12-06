@@ -16,7 +16,7 @@ import csharp_utils
 class CSharpInterface(CSharpElement):
 
     def __init__(self, csharp_interface_name, tokens, token_pos):
-        super(CSharpInterface, self).__init__('class', tokens, token_pos)
+        super(CSharpInterface, self).__init__('interface', tokens, token_pos)
         self.namespace = ''
         self.interface_name = csharp_interface_name
         self.symbol_name = csharp_interface_name
