@@ -25,6 +25,7 @@ class SublimeUnityIntel(sublime_plugin.EventListener):
 
         if current_file is None:
             return
+
         symbolic_parser.parse_file(current_file)
 
     def on_selection_modified_async(self, view):

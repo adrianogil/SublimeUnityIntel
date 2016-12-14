@@ -89,6 +89,7 @@ class CSharpClass(CSharpElement):
         total_ref = len(yaml_instance_list)
 
         action_id = 0
+
         html = '<b><a href="' + str(action_id) + '">' + str(total_ref) + ' References from<br>' + yaml_path + ':</a></b><br>'
         def back_to_yaml_references():
             self.print_yaml_references(view_factory)
@@ -106,7 +107,15 @@ class CSharpClass(CSharpElement):
     def print_yaml_references(self, view_factory):
         view_factory.clear_actions()
 
-        html = '<b>References from YAML files</b>'
+        action_id = 0
+        html = '<b>YAML files that references <a href="' + str(action_id) + \
+               '">' + self.class_name + ' class</a></b>'
+        def open_element_info():
+            self.print_element_info(view_factory)
+        action = open_element_info
+        view_factory.register_action(action_id, action)
+
+        action_id = action_id + 1
 
         p_path_size = len(self.project_path)
 
@@ -118,8 +127,6 @@ class CSharpClass(CSharpElement):
                     yaml_usage[u.reference_file_path].append(u)
                 else:
                     yaml_usage[u.reference_file_path] = [u]
-
-        action_id = 0
 
         for ypath in yaml_usage:
             total_ref = len(yaml_usage[ypath])
