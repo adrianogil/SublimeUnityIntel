@@ -70,7 +70,7 @@ class CSharpClassMethod(CSharpElement, CSharpMethodScope):
                 access_notation + 'method ' + self.method_name + '</a>'
 
     def get_debug_log(self):
-        debug_message = '"' + self.class_object.class_name + '::' + self.method_name
+        debug_message = '"GilLog - ' + self.class_object.class_name + '::' + self.method_name
 
         params_size = len(self.params)
 
