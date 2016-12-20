@@ -31,6 +31,7 @@ class CSharpClassMethod(CSharpElement, CSharpMethodScope):
         self.params = []
         self.definition_line = 0
         self.scope_children = []
+        self.tokens_body = []
 
     def add_param(self, param_object):
         self.params.append(param_object)
@@ -81,12 +82,18 @@ class CSharpClassMethod(CSharpElement, CSharpMethodScope):
 
         return 'Debug.Log(' + debug_message + ');'
 
+    def parse_symbols(self, symbols):
+        print('Parse symbol on method ' + self.method_name)
+        csharp_class_method_scope_parser.parse_tokens(self.tokens_body, \
+                    (1, len(self.tokens_body['tokens'])-1), self, symbols)
+
 
 # class_region = (token_start, token_end) of enclosure class
 def parse_tokens(tokens_data, class_region, class_name, class_object):
 
     tokens = tokens_data['tokens']
     semantic_tokens = tokens_data['semantic_tokens']
+    token_position = tokens_data['token_position']
     enclosure_position = tokens_data['enclosure_position']
 
     method_data = []
@@ -119,6 +126,14 @@ def parse_tokens(tokens_data, class_region, class_name, class_object):
         method_instance.is_virtual = is_virtual
         method_instance.is_override = is_override
         method_instance.class_object = class_object
+
+        t1 = enclosure_position[t]+2
+        t2 = enclosure_position[enclosure_position[t]+1]+1
+
+        method_instance.tokens_body = {"tokens" : tokens[t1:t2], \
+                                       "semantic_tokens" : semantic_tokens[t1:t2], \
+                                       "token_position" : token_position[t1:t2], \
+                                       "enclosure_position" : enclosure_position[t1:t2]}
 
         method_data.append(method_instance)
 
@@ -174,7 +189,6 @@ def parse_tokens(tokens_data, class_region, class_name, class_object):
 
             method_instance = create_method_instance(t)
             tokens_data = csharp_class_method_param_parser.parse_tokens(tokens_data, (t+1, enclosure_position[t]), method_instance)
-            tokens_data = csharp_class_method_scope_parser.parse_tokens(tokens_data, (enclosure_position[t]+2, enclosure_position[enclosure_position[t]+1]+1), method_instance)
 
             is_static_method = False
             is_constructor = False

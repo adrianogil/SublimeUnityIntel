@@ -1,3 +1,12 @@
+def is_valid_variable_name(token):
+    return token != '.'
+
+def is_valid_symbol(token, symbols):
+    for s in symbols:
+        if s == token:
+            return True
+    return False
+
 def is_interface_keyword(token):
     return len(token) == 9 and \
         token[0] == 'i' and \

@@ -84,6 +84,9 @@ class CSharpClass(CSharpElement):
             symbol_base_info.append(symbol)
         self.base_info = symbol_base_info
 
+        for m in self.methods_data:
+            m.parse_symbols(symbols_list)
+
     def print_yaml_references_from_file(self, view_factory, yaml_path, yaml_instance_list):
         view_factory.clear_actions()
         total_ref = len(yaml_instance_list)
