@@ -62,7 +62,8 @@ class SymbolicParser:
             self.symbolic_data['parse'] = parser_utils.parse_project(project_path, self.symbolic_data['parse'], '*.prefab', self.parse_yaml_project_wise, False)
             self.parse_csharp_internal_symbols()
             self.parse_csharp_behaviors_events()
-            pickle.dump(self.symbolic_data, open(join(project_path, 'code_data.symbolic'), 'wb'))
+            csharp_symbols = self.symbolic_data['parse']['symbols']
+            pickle.dump(csharp_symbols, open(join(project_path, 'code_data.symbolic'), 'wb'))
             # print(self.symbolic_data['parse']['symbols'])
 
     def parse_yaml_project_wise(self, content, parse_data, root, filename, project_path):
