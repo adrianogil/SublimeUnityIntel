@@ -119,32 +119,32 @@ class SymbolicParser:
             method_name == 'OnDisable'
 
     def parse_csharp_file(self, file):
-        try:
-            # Parse file into a set of tokens
-            tokens_data = TokenParser().parse_file(file)
-            # print(tokens_data) # For debug purposes
-            tokens_data = csharp_importer_parser.parse_tokens(tokens_data)
-            tokens_data = csharp_class_parser.parse_tokens(tokens_data)
-            tokens_data = csharp_interface_parser.parse_tokens(tokens_data)
-            # Save data
-            self.symbolic_data['parse']['by_files'][file] = tokens_data
+        # try:
+        # Parse file into a set of tokens
+        tokens_data = TokenParser().parse_file(file)
+        # print(tokens_data) # For debug purposes
+        tokens_data = csharp_importer_parser.parse_tokens(tokens_data)
+        tokens_data = csharp_class_parser.parse_tokens(tokens_data)
+        tokens_data = csharp_interface_parser.parse_tokens(tokens_data)
+        # Save data
+        self.symbolic_data['parse']['by_files'][file] = tokens_data
 
-            if 'classes' in tokens_data:
-                for c in tokens_data['classes']:
-                    symbol_name = c.namespace + c.symbol_name
-                    if symbol_name in self.symbolic_data['parse']['symbols']:
-                        self.symbolic_data['parse']['symbols'][symbol_name].recycle(c)
-                    self.symbolic_data['parse']['symbols'][symbol_name] = c
-                    c.file_name = file
-                    c.project_path = self.current_project_path
-            if 'interfaces' in tokens_data:
-                for c in tokens_data['interfaces']:
-                    symbol_name = c.namespace + c.symbol_name
-                    if symbol_name in self.symbolic_data['parse']['symbols']:
-                        self.symbolic_data['parse']['symbols'][symbol_name].recycle(c)
-                    self.symbolic_data['parse']['symbols'][symbol_name] = c
-        except:
-             print("Unexpected error:" + str(sys.exc_info()[0]))
+        if 'classes' in tokens_data:
+            for c in tokens_data['classes']:
+                symbol_name = c.namespace + c.symbol_name
+                if symbol_name in self.symbolic_data['parse']['symbols']:
+                    self.symbolic_data['parse']['symbols'][symbol_name].recycle(c)
+                self.symbolic_data['parse']['symbols'][symbol_name] = c
+                c.file_name = file
+                c.project_path = self.current_project_path
+        if 'interfaces' in tokens_data:
+            for c in tokens_data['interfaces']:
+                symbol_name = c.namespace + c.symbol_name
+                if symbol_name in self.symbolic_data['parse']['symbols']:
+                    self.symbolic_data['parse']['symbols'][symbol_name].recycle(c)
+                self.symbolic_data['parse']['symbols'][symbol_name] = c
+        # except:
+        #      print("Unexpected error:" + str(sys.exc_info()[0]))
 
     def parse_yaml_file(self, file):
         # yaml_parser

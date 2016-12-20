@@ -9,11 +9,14 @@ if __path__ not in sys.path:
     sys.path.insert(0, __path__)
 
 from csharp_element import CSharpElement
+
 import csharp_class_method_param_parser
+import csharp_class_method_scope_parser
+from csharp_class_method_scope_parser import CSharpMethodScope
 
 import csharp_utils
 
-class CSharpClassMethod(CSharpElement):
+class CSharpClassMethod(CSharpElement, CSharpMethodScope):
 
     def __init__(self, csharp_method_name, tokens, token_pos):
         super(CSharpClassMethod, self).__init__('class-method', tokens, token_pos)
@@ -27,6 +30,7 @@ class CSharpClassMethod(CSharpElement):
         self.class_object = None
         self.params = []
         self.definition_line = 0
+        self.scope_children = []
 
     def add_param(self, param_object):
         self.params.append(param_object)
@@ -115,6 +119,7 @@ def parse_tokens(tokens_data, class_region, class_name, class_object):
         method_instance.is_virtual = is_virtual
         method_instance.is_override = is_override
         method_instance.class_object = class_object
+
         method_data.append(method_instance)
 
         for i in range(start_method_pos-1, enclosure_position[enclosure_position[t]+1]):
@@ -169,6 +174,7 @@ def parse_tokens(tokens_data, class_region, class_name, class_object):
 
             method_instance = create_method_instance(t)
             tokens_data = csharp_class_method_param_parser.parse_tokens(tokens_data, (t+1, enclosure_position[t]), method_instance)
+            tokens_data = csharp_class_method_scope_parser.parse_tokens(tokens_data, (enclosure_position[t]+2, enclosure_position[enclosure_position[t]+1]+1), method_instance)
 
             is_static_method = False
             is_constructor = False
