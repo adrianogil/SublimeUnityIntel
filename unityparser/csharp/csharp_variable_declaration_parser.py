@@ -54,7 +54,7 @@ def parse_tokens(tokens_data, parse_region, scope_parent_instance, symbols):
         var_instance.var_type = var_type
         var_instance.var_name = var_name
         var_instance.var_init = var_init
-        var_instance.line_in_file = positions[t]
+        var_instance.line_in_file = positions[t][0]
 
         scope_parent_instance.add_var(var_instance)
 
@@ -62,7 +62,7 @@ def parse_tokens(tokens_data, parse_region, scope_parent_instance, symbols):
 
     def create_var_init_on_pos(t):
         create_var_init(symbols[tokens[t]], tokens[t+1], t)
-    
+
     while t < end_region-2:
         if expect_new_declaration:
             if (tokens[t+1] == ';' or tokens[t+1] == '=' or tokens[t+1] == ',') and csharp_utils.is_valid_variable_name(tokens[t]):

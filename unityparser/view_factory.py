@@ -23,9 +23,11 @@ class ViewFactory:
         self.view = view
         self.symbolic_parser = symbolic_parser
         self.symbolic_data = symbolic_parser.symbolic_data
+        self.last_selected_action_id = -1
         self.view_actions = {}
         def load_action(action_id):
             action_id = int(action_id)
+            self.last_selected_action_id = action_id
             if action_id in self.view_actions:
                 self.view_actions[action_id]()
         self.selection_action = load_action

@@ -20,15 +20,25 @@ def print_popup(class_instance, view_factory):
 
     for R in class_instance.referenced:
         file_path = R.file_name[p_path_size:]
+        if file_path == '':
+            continue
+        # print(file_path)
         if file_path in files_usage:
             files_usage[file_path] = files_usage[file_path] + 1
-            refs_by_path[file_path] = refs_by_path[file_path].append(R)
+            # print('Refs: ' + str(refs_by_path[file_path]))
+            ref_list = refs_by_path[file_path]
+            ref_list.append(R)
+            refs_by_path[file_path] = ref_list
         else:
             files_usage[file_path] = 1
             refs_by_path[file_path] = [R]
 
+    list_paths = []
+
     for file_path in files_usage:
         total_ref = files_usage[file_path]
+
+        list_paths.append(file_path)
 
         if total_ref <= 0:
             continue
@@ -38,8 +48,13 @@ def print_popup(class_instance, view_factory):
 
         action_id = action_id + 1
         html = html + '<br><br><a href="' + str(action_id) + '">' + str(total_ref) + ref_str + ' from <br>' + file_path + "</a>"
+
         def show_ref_popup():
-            print_reference(class_instance, view_factory, file_path, refs_by_path[file_path])
+            print("Trying to open ref " + str(view_factory.last_selected_action_id - 2))
+            print("Total length of files usage: " + str(len(list_paths)))
+            file_path = list_paths[view_factory.last_selected_action_id - 2]
+            ref = refs_by_path[file_path]
+            print_reference(class_instance, view_factory, file_path, ref)
         view_factory.register_action(action_id, show_ref_popup)
 
     view_factory.show_popup(html, 500)

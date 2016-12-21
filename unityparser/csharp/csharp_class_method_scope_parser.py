@@ -82,7 +82,7 @@ def parse_tokens(tokens_data, parse_region, scope_parent_instance, symbols, meth
                                 "token_position" : token_position[t1:t2], \
                                 "enclosure_position" : enclosure_position[t1:t2]}
         csharp_variable_declaration_parser.parse_tokens(scope_snippet_tokens, (0, t2-t1), scope_parent_instance, symbols)
-    
+
     while t < end_region:
         # print('enclosure_position: ' + str(enclosure_position[t]))
         if tokens[t] == '{' and enclosure_position[t] < end_region and tokens[enclosure_position[t]] == '}':
