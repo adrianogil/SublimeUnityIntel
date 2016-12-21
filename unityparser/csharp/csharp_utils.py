@@ -1,5 +1,5 @@
 def is_valid_variable_name(token):
-    return token != '.'
+    return not is_special_token(token)
 
 def is_valid_symbol(token, symbols):
     for s in symbols:
@@ -116,3 +116,22 @@ def is_protected_modifier(token):
         token[6] == 't' and \
         token[7] == 'e' and \
         token[8] == 'd'
+
+def is_special_token(char_content):
+        return char_content == '.' or \
+            char_content == ',' or \
+            char_content == '{' or \
+            char_content == '}' or \
+            char_content == '(' or \
+            char_content == ')' or \
+            char_content == '#' or \
+            char_content == '%' or \
+            char_content == '+' or \
+            char_content == '-' or \
+            char_content == '/' or \
+            char_content == '*' or \
+            char_content == '<' or \
+            char_content == '>' or \
+            char_content == ';' or \
+            char_content == '\"' or \
+            char_content == '\''

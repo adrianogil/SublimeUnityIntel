@@ -32,6 +32,8 @@ class CSharpClassMethod(CSharpElement, CSharpMethodScope):
         self.definition_line = 0
         self.scope_children = []
         self.tokens_body = []
+        self.variable_instances = []
+        self.method_instance = self
 
     def add_param(self, param_object):
         self.params.append(param_object)
@@ -85,7 +87,7 @@ class CSharpClassMethod(CSharpElement, CSharpMethodScope):
     def parse_symbols(self, symbols):
         print('Parse symbol on method ' + self.method_name)
         csharp_class_method_scope_parser.parse_tokens(self.tokens_body, \
-                    (1, len(self.tokens_body['tokens'])-1), self, symbols)
+                    (1, len(self.tokens_body['tokens'])-1), self, symbols, self)
 
 
 # class_region = (token_start, token_end) of enclosure class
@@ -128,12 +130,20 @@ def parse_tokens(tokens_data, class_region, class_name, class_object):
         method_instance.class_object = class_object
 
         t1 = enclosure_position[t]+2
-        t2 = enclosure_position[enclosure_position[t]+1]+1
+        t2 = enclosure_position[enclosure_position[t]+1]-1
+
+        enclosure_position_method = []
+
+        for i in range(t1, t2):
+            if enclosure_position[i] >= t1:
+                enclosure_position_method.append(enclosure_position[i]-t1)
+            else:
+                enclosure_position_method.append(enclosure_position[i])
 
         method_instance.tokens_body = {"tokens" : tokens[t1:t2], \
                                        "semantic_tokens" : semantic_tokens[t1:t2], \
                                        "token_position" : token_position[t1:t2], \
-                                       "enclosure_position" : enclosure_position[t1:t2]}
+                                       "enclosure_position" : enclosure_position_method }
 
         method_data.append(method_instance)
 
