@@ -57,7 +57,7 @@ class CSharpInterface(CSharpElement):
     def recycle(self, new_class_instance):
         new_class_instance.usage = self.usage
         new_class_instance.base_interface_info = self.base_interface_info
-        new_class_instance.inherited_by = self.inherited_by
+        new_class_instance.implemented_by = self.implemented_by
 
 def  parse_tokens(tokens_data):
     tokens = tokens_data['tokens']
