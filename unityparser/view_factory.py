@@ -16,6 +16,7 @@ from csharp_element import CSharpElement
 from csharp_reference import CSharpReference
 
 import popup.yaml_reference_popup
+import popup.csharp_reference_popup
 
 class ViewFactory:
     def __init__(self, view, symbolic_parser):
@@ -115,3 +116,5 @@ class ViewFactory:
 
     def print_yaml_ref_popup(self, class_instance):
         popup.yaml_reference_popup.print_popup(class_instance, self)
+    def print_csharp_ref_popup(self, class_instance):
+        popup.csharp_reference_popup.print_popup(class_instance, self)

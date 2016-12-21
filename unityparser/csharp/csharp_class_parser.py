@@ -67,7 +67,7 @@ class CSharpClass(CSharpElement):
                 if element.element_type == 'class':
                     ref = CSharpReference()
                     ref.reference_object = f
-                    ref.line_in_file = f.line_in_file
+                    ref.line_in_file = f.line_in_file+1
                     ref.file_name = self.file_name
                     print(self.class_name + ' has a field that references ' + symbol)
                     element.referenced.append(ref)
@@ -144,12 +144,19 @@ class CSharpClass(CSharpElement):
                 view_factory.print_yaml_ref_popup(self)
             action = show_yaml_references_popup
             view_factory.register_action(action_id, action)
+
         total_referenced = len(self.referenced)
         if total_referenced > 0:
             ref_label = ' references'
             if total_referenced == 1:
                 ref_label =' reference'
-            class_info = class_info + '<br>' + str(total_referenced) + ref_label + ' from another classes '
+            action_id = action_id + 1
+            class_info = class_info + '<br><a href="' + str(action_id) + '">' + str(total_referenced) + ref_label + ' from another classes </a>'
+            def show_csharp_ref_popup():
+                view_factory.print_csharp_ref_popup(self)
+            action = show_csharp_ref_popup
+            view_factory.register_action(action_id, action)
+
         # print(class_info)
         view_factory.show_popup(class_info)
 
