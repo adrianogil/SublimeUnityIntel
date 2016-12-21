@@ -1,3 +1,21 @@
+import os, sys
+
+__file__ = os.path.normpath(os.path.abspath(__file__))
+__path__ = os.path.dirname(__file__)
+__popup_path__ = os.path.join(__path__, 'popup')
+
+# print(__path__)
+
+if __path__ not in sys.path:
+    sys.path.insert(0, __path__)
+
+if __popup_path__ not in sys.path:
+    sys.path.insert(0, __popup_path__)
+
+from csharp_element import CSharpElement
+from csharp_reference import CSharpReference
+
+import popup.yaml_reference_popup
 
 class ViewFactory:
     def __init__(self, view, symbolic_parser):
@@ -94,3 +112,6 @@ class ViewFactory:
                         {"row": row, "col": col}
                 )
         return go_to_line
+
+    def print_yaml_ref_popup(self, class_instance):
+        popup.yaml_reference_popup.print_popup(class_instance, self)
