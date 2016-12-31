@@ -26,6 +26,15 @@ class CSharpClassField(CSharpElement):
     def print_element_info(self):
         return self.field_type + ' ' + self.field_name
 
+    def print_element_info(self, view_factory):
+        action_id = 1
+        method_info = '<b><a href="' + str(action_id) + '">Field ' + self.field_name + ' of type ' + str(self.field_type) + '</a></b>'
+        action = view_factory.get_goto_line_action(1)
+        view_factory.register_action(action_id, action)
+        # print(method_info)
+        view_factory.show_popup(method_info)
+        return method_info
+
 # class_region = (token_start, token_end) of enclosure class
 def parse_tokens(tokens_data, class_region, class_name, class_instance):
 

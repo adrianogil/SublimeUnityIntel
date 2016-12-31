@@ -243,10 +243,14 @@ class SymbolicParser:
 
 
     def get_semantic_token(self, file, rowcol, usingcol = False, sameLine=False, token_verification=False, token_selected=''):
+        # Get semantic data of the current file
         file_data = self.symbolic_data['parse']['by_files'][file]
+
         if 'token_position' in file_data:
+            # We need to associate the current position to a semantic object
             token_position = file_data['token_position']
             tokens = file_data['tokens']
+            # Current position
             row, col = rowcol
             # print('parser.py::get_semantic_token - searching in position ' + str(row) + ',' + str(col))
             total_tokens = len(token_position)

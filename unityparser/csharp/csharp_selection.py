@@ -11,9 +11,9 @@ def show_view(view_factory, selected_text, rowcol):
     if semantic_object == None:
         # print('parser.py::print_selection_info - received None ')
         return
-    if semantic_object.element_type == "class" or semantic_object.element_type == "class-method":
-    # //if isinstance(semantic_object, csharp.csharp_class_parser.CSharpClass) or  \
-       # isinstance(semantic_object, csharp.csharp_class_method_parser.CSharpClassMethod):
+    if semantic_object.element_type == "class" or \
+       semantic_object.element_type == "class-method" or \
+       semantic_object.element_type == "class_field":
         # print('parser.py::print_selection_info - show class_info ' + semantic_object.class_name)
         semantic_object.print_element_info(view_factory)
         # view_factory.get_showpopup()(semantic_object.print_element_info(), view_factory.get_goto_line())
