@@ -28,10 +28,10 @@ class CSharpMethodScope():
                 if var_instance.var_type.element_type == 'class':
                     ref = CSharpReference()
                     ref.reference_object = var_instance
-                    ref.line_in_file = var_instance.line_in_file
+                    ref.line_in_file = var_instance.line_in_file+1
                     ref.file_name = self.method_instance.class_object.file_name
                     print(var_instance.var_type.class_name + ' is instantiated at method: ' + self.method_instance.method_name)
-                    var_instance.var_type.referenced.append(ref)
+                    var_instance.var_type.add_referenced(ref)
             self.variable_instances.append(var_instance)
 
 # class_region = (token_start, token_end) of enclosure class

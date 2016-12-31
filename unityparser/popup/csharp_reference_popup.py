@@ -1,3 +1,5 @@
+import codecs
+
 def print_popup(class_instance, view_factory):
     view_factory.clear_actions()
 
@@ -59,6 +61,19 @@ def print_popup(class_instance, view_factory):
 
     view_factory.show_popup(html, 500)
 
+def get_line_in_reference(ref):
+    csharp_file = ref.file_name
+    with codecs.open(csharp_file, encoding="utf-8-sig", errors='ignore') as f:
+        content = f.readlines()
+    total_lines = len(content)
+
+    line_number = ref.line_in_file - 1
+
+    if line_number < 0 or line_number >= total_lines:
+        return ""
+
+    return content[line_number]
+
 def print_reference(class_instance, view_factory, csharp_path, ref_list):
     view_factory.clear_actions()
     total_ref = len(ref_list)
@@ -69,10 +84,23 @@ def print_reference(class_instance, view_factory, csharp_path, ref_list):
         print_popup(class_instance, view_factory)
     view_factory.register_action(action_id, back_to_charp_references)
 
+    # refs_by_line = []
+    # for ref in ref_list:
+    #     if len(refs_by_line) == 0:
+    #         refs_by_line.append(ref)
+    #     else:
+    #         already_added_ref = False
+    #         for R in ref_list:
+    #             if R.line_in_file == ref.line_in_file:
+    #                 already_added_ref = True
+    #         if not already_added_ref:
+    #             refs_by_line.append(ref)
+
     for ref in ref_list:
         action_id = action_id + 1
-        html = html + '<br><a href="' + str(action_id) + '">From line ' + str(ref.line_in_file) + '</a>'
+        html = html + '<br><a href="' + str(action_id) + '">From line ' + str(ref.line_in_file) + ":"
+        html = html + '<br>' + get_line_in_reference(ref) + '</a><br>'
         action = view_factory.get_goto_file_reference_action(ref.file_name, ref.line_in_file)
         view_factory.register_action(action_id, action)
 
-    view_factory.show_popup(html, 500)
+    view_factory.show_popup(html, 700)

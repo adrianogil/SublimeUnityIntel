@@ -37,6 +37,16 @@ class CSharpClass(CSharpElement):
                 return
         self.usage.append(referee)
 
+    # Add a CSharp semantic object that references this class
+    def add_referenced(self, ref):
+        found_ref = False
+        for r in self.referenced:
+            if r.file_name == ref.file_name and r.line_in_file == ref.line_in_file:
+                found_ref = True
+                break
+        if not found_ref:
+            self.referenced.append(ref)
+
     def add_property(self, property_instance):
         self.properties_data.append(property_instance)
         property_instance.class_object = self
