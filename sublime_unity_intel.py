@@ -72,11 +72,27 @@ class SmartdebugCommand(sublime_plugin.TextCommand):
         view = self.view
         file = view.file_name()
 
+
         if file.lower().endswith(('.cs')):
-            for region in view.sel():
-                rowcol = view.rowcol(region.begin())
+            debug_log = ""
+            regions = view.sel()
+            if len(regions) == 1:
+                main_region = regions[0]
+                rowcol = view.rowcol(main_region.begin())
                 debug_log = symbolic_parser.print_debuglog(file, rowcol)
-                view.replace(edit, region, debug_log)
+            elif len(regions) > 1:
+                variables = []
+                main_region = None
+                for i in range(0, len(regions)):
+                    region = regions[i]
+                    selected_text = view.substr(region)
+                    if selected_text == '':
+                        main_region = region
+                    else:
+                        variables.append(selected_text)
+                rowcol = view.rowcol(main_region.begin())
+                debug_log = symbolic_parser.print_debuglog_with_vars(file, rowcol, variables)
+            view.replace(edit, main_region, debug_log)
 
 class UnityBehaviorsEvents(sublime_plugin.TextCommand):
     def run(self, edit):

@@ -270,6 +270,17 @@ class SymbolicParser:
         else:
             return None
 
+    def print_debuglog_with_vars(self, file, rowcol, vars):
+        file_data = self.symbolic_data['parse']['by_files'][file]
+        semantic_object = self.get_semantic_token(file, rowcol)
+
+        if semantic_object == None:
+            return ''
+        if isinstance(semantic_object, CSharpClassMethod):
+            return semantic_object.get_debug_log_with_vars(vars)
+        else:
+            return ""
+
     def print_debuglog(self, file, rowcol):
         file_data = self.symbolic_data['parse']['by_files'][file]
         semantic_object = self.get_semantic_token(file, rowcol)

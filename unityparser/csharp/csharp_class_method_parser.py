@@ -69,6 +69,30 @@ class CSharpClassMethod(CSharpElement, CSharpMethodScope):
         return '    <a href="' + str(self.line_in_file) + '">' + \
                 access_notation + 'method ' + self.method_name + '</a>'
 
+    def get_debug_log_with_vars(self, debug_vars):
+        debug_message = '"GilLog - ' + self.class_object.class_name + '::' + self.method_name
+
+        params_size = len(self.params)
+
+        if params_size > 0:
+            debug_message = debug_message + ' - '
+
+            for p in range(0, params_size):
+                debug_message = debug_message + self.params[p].param_name + ' " + ' \
+                                              + self.params[p].param_name + ' + " '
+
+        vars_size = len(debug_vars)
+
+        if vars_size > 0:
+            for v in range(0, vars_size):
+                debug_message = debug_message + ' - ' + \
+                                                debug_vars[v] + ' " + ' \
+                                              + debug_vars[v] + ' + " '
+
+        debug_message = debug_message + '"'
+
+        return 'Debug.Log(' + debug_message + ');'
+
     def get_debug_log(self):
         debug_message = '"GilLog - ' + self.class_object.class_name + '::' + self.method_name
 
