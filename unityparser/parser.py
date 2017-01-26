@@ -34,14 +34,18 @@ import pickle
 import selection_parser
 import view_factory
 
-class SymbolicParser:
-    def __init__(self):
-        self.symbolic_data = { \
+def init_symbolic_data():
+        return { \
             'parse': { \
                 'symbols' : {}, \
                 'by_files' : {} \
             } \
         }
+
+class SymbolicParser:
+    def __init__(self):
+        # Project-wise symbolic data
+        self.symbolic_data = {}
         self.parse_file_by_filetype = { \
             ('.cs') : self.parse_csharp_file, \
             ('.unity','.prefab','.asset') : self.parse_yaml_file \
@@ -50,45 +54,50 @@ class SymbolicParser:
         self.current_file = ''
         self.current_project_path = ''
 
+    def get_symbolic_data(self):
+        if not self.current_project_path in self.symbolic_data:
+            self.symbolic_data[self.current_project_path] = init_symbolic_data()
+        return self.symbolic_data[self.current_project_path]
+
     def parse_project(self, file_path):
         project_path = parser_utils.get_project_path('', file_path)
         if project_path != '' and (not project_path in self.last_parse_time or (time.time() - self.last_parse_time[project_path]) > 6000):
             self.current_project_path = project_path
             print('parser::parse_project ' + project_path)
             self.last_parse_time[project_path] = time.time()
-            self.symbolic_data['parse']['yaml'] = yaml_parser.get_all_guid_files(project_path, parser_utils.parse_project)
-            self.symbolic_data['parse'] = parser_utils.parse_project(project_path, self.symbolic_data['parse'], '*.cs', self.parse_csharp_project_wise, False)
-            self.symbolic_data['parse'] = parser_utils.parse_project(project_path, self.symbolic_data['parse'], '*.unity', self.parse_yaml_project_wise, False)
-            self.symbolic_data['parse'] = parser_utils.parse_project(project_path, self.symbolic_data['parse'], '*.prefab', self.parse_yaml_project_wise, False)
+            self.get_symbolic_data()['parse']['yaml'] = yaml_parser.get_all_guid_files(project_path, parser_utils.parse_project)
+            self.get_symbolic_data()['parse'] = parser_utils.parse_project(project_path, self.get_symbolic_data()['parse'], '*.cs', self.parse_csharp_project_wise, False)
+            self.get_symbolic_data()['parse'] = parser_utils.parse_project(project_path, self.get_symbolic_data()['parse'], '*.unity', self.parse_yaml_project_wise, False)
+            self.get_symbolic_data()['parse'] = parser_utils.parse_project(project_path, self.get_symbolic_data()['parse'], '*.prefab', self.parse_yaml_project_wise, False)
             self.parse_csharp_internal_symbols()
             self.parse_csharp_behaviors_events()
-            csharp_symbols = self.symbolic_data['parse']['symbols']
+            csharp_symbols = self.get_symbolic_data()['parse']['symbols']
             pickle.dump(csharp_symbols, open(join(project_path, 'code_data.symbolic'), 'wb'))
-            # print(self.symbolic_data['parse']['symbols'])
+            # print(self.get_symbolic_data()['parse']['symbols'])
 
     def parse_yaml_project_wise(self, content, parse_data, root, filename, project_path):
         file = join(root, filename)
         print("Parsing file " + file)
         self.parse_yaml_file(file)
-        return self.symbolic_data['parse']
+        return self.get_symbolic_data()['parse']
 
     def parse_csharp_project_wise(self, content, parse_data, root, filename, project_path):
         file = join(root, filename)
         print("Parsing file " + file)
         self.parse_csharp_file(file)
-        return self.symbolic_data['parse']
+        return self.get_symbolic_data()['parse']
 
 
     def parse_csharp_internal_symbols(self):
-        csharp_symbols = self.symbolic_data['parse']['symbols']
+        csharp_symbols = self.get_symbolic_data()['parse']['symbols']
         for s in csharp_symbols:
             c = csharp_symbols[s]
             if isinstance(c, csharp.csharp_class_parser.CSharpClass):#c.element_type == "class":
-                c.parse_symbols(self.symbolic_data['parse']['symbols'])
+                c.parse_symbols(self.get_symbolic_data()['parse']['symbols'])
 
     def parse_csharp_behaviors_events(self):
         print('parse_csharp_behaviors_events - Start')
-        csharp_symbols = self.symbolic_data['parse']['symbols']
+        csharp_symbols = self.get_symbolic_data()['parse']['symbols']
         behaviors_events = { 'Awake' : [],  'Start' : [], 'Update' : [], 'OnEnable' : [], 'OnDisable' : [] }
         for s in csharp_symbols:
             c = csharp_symbols[s]
@@ -100,7 +109,7 @@ class SymbolicParser:
                         event_list = behaviors_events[m.method_name]
                         event_list.append(m)
                         behaviors_events[m.method_name] = event_list
-        self.symbolic_data['parse']['behaviors_events'] = behaviors_events
+        self.get_symbolic_data()['parse']['behaviors_events'] = behaviors_events
         print('parse_csharp_behaviors_events - Finish')
 
 
@@ -128,30 +137,30 @@ class SymbolicParser:
             tokens_data = csharp_class_parser.parse_tokens(tokens_data)
             tokens_data = csharp_interface_parser.parse_tokens(tokens_data)
             # Save data
-            self.symbolic_data['parse']['by_files'][file] = tokens_data
+            self.get_symbolic_data()['parse']['by_files'][file] = tokens_data
 
             if 'classes' in tokens_data:
                 for c in tokens_data['classes']:
                     symbol_name = c.namespace + c.symbol_name
-                    if symbol_name in self.symbolic_data['parse']['symbols']:
-                        self.symbolic_data['parse']['symbols'][symbol_name].recycle(c)
-                    self.symbolic_data['parse']['symbols'][symbol_name] = c
+                    if symbol_name in self.get_symbolic_data()['parse']['symbols']:
+                        self.get_symbolic_data()['parse']['symbols'][symbol_name].recycle(c)
+                    self.get_symbolic_data()['parse']['symbols'][symbol_name] = c
                     c.file_name = file
                     c.project_path = self.current_project_path
             if 'interfaces' in tokens_data:
                 for c in tokens_data['interfaces']:
                     symbol_name = c.namespace + c.symbol_name
-                    if symbol_name in self.symbolic_data['parse']['symbols']:
-                        self.symbolic_data['parse']['symbols'][symbol_name].recycle(c)
-                    self.symbolic_data['parse']['symbols'][symbol_name] = c
+                    if symbol_name in self.get_symbolic_data()['parse']['symbols']:
+                        self.get_symbolic_data()['parse']['symbols'][symbol_name].recycle(c)
+                    self.get_symbolic_data()['parse']['symbols'][symbol_name] = c
         except:
              print("Unexpected error:" + str(sys.exc_info()[0]))
 
     def parse_yaml_file(self, file):
         # yaml_parser
-        if not 'yaml' in self.symbolic_data['parse']:
-            self.symbolic_data['parse']['yaml'] = yaml_parser.get_all_guid_files(parser_utils.get_project_path('', file), parser_utils.parse_project)
-        self.symbolic_data['parse'] = yaml_parser.parse_yaml(file, self.symbolic_data['parse'])
+        if not 'yaml' in self.get_symbolic_data()['parse']:
+            self.get_symbolic_data()['parse']['yaml'] = yaml_parser.get_all_guid_files(parser_utils.get_project_path('', file), parser_utils.parse_project)
+        self.get_symbolic_data()['parse'] = yaml_parser.parse_yaml(file, self.get_symbolic_data()['parse'])
 
     def parse_file(self, file):
         if file is None:
@@ -174,16 +183,16 @@ class SymbolicParser:
         selection_parser.handle_selection(view, self)
 
     def get_yaml_data(self):
-        return self.symbolic_data['parse']['yaml']
+        return self.get_symbolic_data()['parse']['yaml']
 
     def get_current_file_data(self):
-        return self.symbolic_data['parse']['by_files'][self.current_file]
+        return self.get_symbolic_data()['parse']['by_files'][self.current_file]
 
     # Print outline for current file
     # @param show_outline - method to exhibit outline
     #                       should receive a text and navigation method
     def print_outline(self, file, view, font):
-        file_data = self.symbolic_data['parse']['by_files'][file]
+        file_data = self.get_symbolic_data()['parse']['by_files'][file]
 
         class_field = []
         current_class_fields = []
@@ -216,7 +225,7 @@ class SymbolicParser:
         if not file.lower().endswith(('.cs')):
             return
 
-        file_data = self.symbolic_data['parse']['by_files'][file]
+        file_data = self.get_symbolic_data()['parse']['by_files'][file]
 
         class_field = []
         current_class_fields = []
@@ -244,7 +253,7 @@ class SymbolicParser:
 
     def get_semantic_token(self, file, rowcol, usingcol = False, sameLine=False, token_verification=False, token_selected=''):
         # Get semantic data of the current file
-        file_data = self.symbolic_data['parse']['by_files'][file]
+        file_data = self.get_symbolic_data()['parse']['by_files'][file]
 
         if 'token_position' in file_data:
             # We need to associate the current position to a semantic object
@@ -271,7 +280,7 @@ class SymbolicParser:
             return None
 
     def print_debuglog_with_vars(self, file, rowcol, vars):
-        file_data = self.symbolic_data['parse']['by_files'][file]
+        file_data = self.get_symbolic_data()['parse']['by_files'][file]
         semantic_object = self.get_semantic_token(file, rowcol)
 
         if semantic_object == None:
@@ -282,7 +291,7 @@ class SymbolicParser:
             return ""
 
     def print_debuglog(self, file, rowcol):
-        file_data = self.symbolic_data['parse']['by_files'][file]
+        file_data = self.get_symbolic_data()['parse']['by_files'][file]
         semantic_object = self.get_semantic_token(file, rowcol)
 
         if semantic_object == None:
@@ -304,12 +313,12 @@ class SymbolicParser:
 
                 print('show_unity_behaviors_events::choice_field')
 
-                if 'behaviors_events' in self.symbolic_data['parse']:
+                if 'behaviors_events' in self.get_symbolic_data()['parse']:
 
                     def get_class_name(method):
                         return method.class_object.class_name
 
-                    events_method = self.symbolic_data['parse']['behaviors_events'][events[choice]]
+                    events_method = self.get_symbolic_data()['parse']['behaviors_events'][events[choice]]
                     events_method = sorted(events_method, key=get_class_name)
 
                     html = '<b> Methods attached to ' + events[choice] + ' event: </b> <br> Found <b>' + str(len(events_method)) + \
