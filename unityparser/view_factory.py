@@ -17,6 +17,7 @@ from csharp_reference import CSharpReference
 
 import popup.yaml_reference_popup
 import popup.yaml_gameobject_popup
+import popup.yaml_transform_popup
 import popup.csharp_reference_popup
 
 class ViewFactory:
@@ -124,3 +125,5 @@ class ViewFactory:
         popup.csharp_reference_popup.print_popup(class_instance, self)
     def print_yaml_go_popup(self, go_model):
         popup.yaml_gameobject_popup.print_popup(go_model, self)
+    def print_yaml_transform_popup(self, go_model):
+        popup.yaml_transform_popup.print_popup(go_model, self)

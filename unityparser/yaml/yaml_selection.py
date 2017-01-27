@@ -30,7 +30,14 @@ class GameObjectModel:
     def __init__(self, selected_text, file_data):
         self.selected_text = selected_text
         self.name = get_gameobject_name_from(selected_text, file_data)
+        if is_gameobject_id(selected_text, file_data):
+            self.go_id = self.selected_text
+        elif is_transform_id(selected_text, file_data):
+            self.go_id = get_gameobject_id_from(selected_text, file_data)
         self.transform_id = get_transform_id_from(selected_text, file_data)
+
+    def get_id(self):
+        return self.go_id
 
     def get_name(self):
         return self.name
@@ -62,16 +69,5 @@ def show_view(view_factory, selected_text, rowcol):
         go_model = GameObjectModel(selected_text, file_data)
         view_factory.print_yaml_go_popup(go_model)
     elif is_transform_id(selected_text, file_data):
-        go_id = get_gameobject_id_from(selected_text, file_data)
-
-        action_id = 1
-        html = '<b>[Transform] GameObject: ' + get_gameobject_name_from(go_id, file_data) + \
-            '</b><br><a href="' + str(action_id) + '">Show definition </a> <br>'
-        action = view_factory.get_goto_reference_action(go_id)
-        view_factory.register_action(action_id, action)
-
-        action_id = 2
-        html = html + '<a href="'+ str(action_id) + '">Show Transform component</a>'
-        action = view_factory.get_goto_reference_action(selected_text)
-        view_factory.register_action(action_id, action)
-        view_factory.show_popup(html)
+        go_model = GameObjectModel(selected_text, file_data)
+        view_factory.print_yaml_transform_popup(go_model)
