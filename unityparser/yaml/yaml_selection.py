@@ -26,6 +26,22 @@ def get_transform_id_from(go_id, file_data):
 def get_gameobject_id_from(transform_id, file_data):
     return file_data['gameobject_id_by_transform_id'][transform_id]
 
+class GameObjectModel:
+    def __init__(self, selected_text, file_data):
+        self.selected_text = selected_text
+        self.name = get_gameobject_name_from(selected_text, file_data)
+        self.transform_id = get_transform_id_from(selected_text, file_data)
+
+    def get_name(self):
+        return self.name
+
+    def get_selected_text(self):
+        return self.selected_text
+
+    def get_transform_id(self):
+        return self.transform_id
+
+
 def show_view(view_factory, selected_text, rowcol):
     yaml_data = view_factory.symbolic_parser.get_yaml_data()
     file_data = view_factory.symbolic_parser.get_current_file_data()
@@ -43,19 +59,8 @@ def show_view(view_factory, selected_text, rowcol):
         view_factory.register_action(action_id, action)
         view_factory.show_popup(html)
     elif is_gameobject_id(selected_text, file_data):
-        action_id = 1
-        html = '<b>GameObject: ' + get_gameobject_name_from(selected_text, file_data) + \
-            '</b><br><a href="' + str(action_id) + '">Show definition </a> <br>'
-        action = view_factory.get_goto_reference_action(selected_text)
-        view_factory.register_action(action_id, action)
-
-        action_id = 2
-        html = html + '<a href="'+ str(action_id) + \
-                    '">Show Transform component</a>'
-        action = view_factory.get_goto_reference_action(get_transform_id_from(selected_text, file_data))
-        view_factory.register_action(action_id, action)
-
-        view_factory.show_popup(html)
+        go_model = GameObjectModel(selected_text, file_data)
+        view_factory.print_yaml_go_popup(go_model)
     elif is_transform_id(selected_text, file_data):
         go_id = get_gameobject_id_from(selected_text, file_data)
 

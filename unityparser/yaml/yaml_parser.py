@@ -148,32 +148,3 @@ def get_all_guid_files(project_path, parse_project_function):
 
     return yaml_data
 
-def print_yaml_file_info(file, selected_text, parser_data, open_file, show_info):
-    if selected_text in parser_data['yaml']['files_by_guid']:
-        show_info('<b>' + parser_data['yaml']['relative_path_by_guid'][selected_text] + \
-                   '</b><br><a href="' + parser_data['yaml']['files_by_guid'][selected_text] + \
-                   '">Open</a>', open_file)
-        return True
-    return False
-
-def print_yaml_gameobject_info(file, selected_text, parser_data, go_to_reference, show_info):
-    if selected_text in  parser_data['by_files'][file]['gameobject_name_by_id']:
-        popup_text = '<b>GameObject: ' + parser_data['by_files'][file]['gameobject_name_by_id'][selected_text] + \
-            '</b><br><a href="' + selected_text + '">Show definition </a> <br>' + \
-                    '<a href="'+ parser_data['by_files'][file]['transform_id_by_gameobject_id'][selected_text] + \
-                    '">Show Transform component</a>'
-        show_info(popup_text, go_to_reference)
-        return True
-    return False
-
-def print_yaml_transform_info(file, selected_text, parser_data, go_to_reference, show_info):
-    if selected_text in parser_data['by_files'][file]['gameobject_id_by_transform_id']:
-        selected_text = parser_data['by_files'][file]['gameobject_id_by_transform_id'][selected_text]
-        popup_text = '<b>[Transform] GameObject: ' + parser_data['by_files'][file]['gameobject_name_by_id'][selected_text] + \
-            '</b><br><a href="' + selected_text + '">Show definition </a> <br>' + \
-                    '<a href="'+ parser_data['by_files'][file]['transform_id_by_gameobject_id'][selected_text] + \
-                    '">Show Transform component</a>'
-        show_info(popup_text, go_to_reference)
-        return True
-    return False
-
