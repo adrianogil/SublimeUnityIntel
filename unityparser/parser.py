@@ -165,6 +165,8 @@ class SymbolicParser:
     def parse_file(self, file):
         if file is None:
             return
+        self.current_project_path = parser_utils.get_project_path('', file)
+
         for t in self.parse_file_by_filetype:
             if file.lower().endswith(t):
                 self.parse_file_by_filetype[t](file)
