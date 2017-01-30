@@ -98,8 +98,8 @@ def print_reference(class_instance, view_factory, csharp_path, ref_list):
 
     for ref in ref_list:
         action_id = action_id + 1
-        html = html + '<br><a href="' + str(action_id) + '">From line ' + str(ref.line_in_file) + ":"
-        html = html + '<br>' + get_line_in_reference(ref) + '</a><br>'
+        html = html + '<br><a href="' + str(action_id) + '">Line ' + str(ref.line_in_file) + ":</a>"
+        html = html + '<br>' + get_line_in_reference(ref) + '<br>'
         action = view_factory.get_goto_file_reference_action(ref.file_name, ref.line_in_file)
         view_factory.register_action(action_id, action)
 
