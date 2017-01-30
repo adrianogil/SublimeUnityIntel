@@ -66,6 +66,47 @@ class InsertTextOnSelectionCommand(sublime_plugin.TextCommand):
         for region in self.view.sel():
             self.view.replace(edit, region, text)
 
+class InsertTextOnPositionCommand(sublime_plugin.TextCommand):
+    def run(self, edit, text, line):
+        line = int(line)
+
+        print('InsertTextOnPositionCommand tried to insert text "' + text + '" into line ' + str(line))
+
+        # Negative line numbers count from the end of the buffer
+        if line < 0:
+            lines, _ = self.view.rowcol(self.view.size())
+            line = lines + line + 1
+
+        point = self.view.text_point(line, 0)
+        indent_point = self.view.text_point(line-1, 0)
+
+        view_line = self.view.line(point)
+        indent_line = self.view.line(indent_point)
+
+        line_str = self.view.substr(indent_line)
+        indent = len(line_str) - len(line_str.lstrip())
+
+        for i in range(0, indent):
+            text = ' ' + text;
+
+        self.view.insert(edit, view_line.begin(), text)
+
+class SelectTextOnPosition(sublime_plugin.TextCommand):
+    def run(self, edit, line, begin_text, end_text):
+        if line < 0:
+            lines, _ = self.view.rowcol(self.view.size())
+            line = lines + line + 1
+
+        point = self.view.text_point(line, 0)
+
+        view_line = self.view.line(point)
+        line_str = self.view.substr(view_line)
+        indent = len(line_str) - len(line_str.lstrip())
+
+        target_region = sublime.Region(point + indent + begin_text, point + indent + end_text)
+        self.view.sel().clear()
+        self.view.sel().add(target_region)
+
 class SmartdebugCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         print('Running command "DebugLog"')

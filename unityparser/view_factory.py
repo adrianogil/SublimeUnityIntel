@@ -43,6 +43,22 @@ class ViewFactory:
     def show_popup(self, html, width=300):
         self.view.show_popup(html, on_navigate=self.selection_action, max_width=width)
 
+    def hide_popup(self):
+        if self.view.is_popup_visible():
+            self.view.hide_popup()
+
+    def add_text_on_position(self, text, line):
+        self.view.window().active_view().run_command(
+                        "insert_text_on_position",
+                        {"text": text, "line": line}
+                )
+
+    def select_text_on_position(self, line, start_pos, end_pos):
+        self.view.window().active_view().run_command(
+                        "select_text_on_position",
+                        {"line": line, "begin_text": start_pos, "end_text": end_pos}
+                )
+
     def get_showpopup(self):
         def show_popup(text, action):
             self.view.show_popup(text, on_navigate=action)

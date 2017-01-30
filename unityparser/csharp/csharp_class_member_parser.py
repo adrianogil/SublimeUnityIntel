@@ -28,9 +28,28 @@ class CSharpClassField(CSharpElement):
 
     def print_element_info(self, view_factory):
         action_id = 1
-        method_info = '<b><a href="' + str(action_id) + '">Field ' + self.field_name + ' of type ' + str(self.field_type) + '</a></b>'
+        method_info = '<b><a href="' + str(action_id) + '">Field ' + self.field_name + '</a><br>[' + str(self.field_type) + ']</b>'
         action = view_factory.get_goto_line_action(1)
         view_factory.register_action(action_id, action)
+
+        if self.field_access_level == 'private':
+            action_id = action_id + 1
+            method_info = method_info + '<br>- <a href="' + str(action_id) + '">Create public property</a>'
+            def create_public_property():
+                print('CSharpClassField should create a public property')
+
+                generated_property = 'public ' + self.field_type + ' '
+                start_selection = len(generated_property)
+                temp_property_name = self.field_name + 'Property'
+                generated_property = generated_property + temp_property_name + \
+                                        ' { get { return ' + self.field_name + \
+                                        '; } }\n'
+
+                view_factory.hide_popup()
+                view_factory.add_text_on_position(generated_property, self.line_in_file+1)
+                view_factory.select_text_on_position(self.line_in_file+1, start_selection, start_selection+len(temp_property_name))
+            view_factory.register_action(action_id, create_public_property)
+
         # print(method_info)
         view_factory.show_popup(method_info)
         return method_info
