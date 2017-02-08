@@ -52,7 +52,7 @@ def print_popup(class_instance, view_factory):
         action_id = action_id + 1
         # Removes 'Assets/' from path
         html = html + '<br><br><a href="' + str(action_id) + '">' + file_path[7:] + "</a>"
-        html = html + '<br><b>[' + str(total_ref) + ref_str + ']</b>'
+        html = html + '<br>[' + str(total_ref) + ref_str + ']'
 
         def show_ref_popup():
             file_path = list_paths[view_factory.last_selected_action_id - 2]
