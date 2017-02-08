@@ -44,20 +44,28 @@ def print_popup(class_instance, view_factory):
 
         if total_ref <= 0:
             continue
+
         ref_str = ' References'
         if total_ref == 1:
             ref_str = ' Reference'
 
         action_id = action_id + 1
-        html = html + '<br><br><a href="' + str(action_id) + '">' + str(total_ref) + ref_str + ' from <br>' + file_path + "</a>"
+        # Removes 'Assets/' from path
+        html = html + '<br><br><a href="' + str(action_id) + '">' + file_path[7:] + "</a>"
+        html = html + '<br><b>[' + str(total_ref) + ref_str + ']</b>'
 
         def show_ref_popup():
-            print("Trying to open ref " + str(view_factory.last_selected_action_id - 2))
-            print("Total length of files usage: " + str(len(list_paths)))
             file_path = list_paths[view_factory.last_selected_action_id - 2]
             ref = refs_by_path[file_path]
             print_reference(class_instance, view_factory, file_path, ref)
         view_factory.register_action(action_id, show_ref_popup)
+
+        for ref in refs_by_path[file_path]:
+            action_id = action_id + 1
+            html = html + '<br><a href="' + str(action_id) + '">Line ' + str(ref.line_in_file) + ":</a>"
+            html = html + ' ' + get_line_in_reference(ref) + '<br>'
+            action = view_factory.get_goto_file_reference_action(ref.file_name, ref.line_in_file)
+            view_factory.register_action(action_id, action)
 
     view_factory.show_popup(html, 500)
 
@@ -83,18 +91,6 @@ def print_reference(class_instance, view_factory, csharp_path, ref_list):
     def back_to_charp_references():
         print_popup(class_instance, view_factory)
     view_factory.register_action(action_id, back_to_charp_references)
-
-    # refs_by_line = []
-    # for ref in ref_list:
-    #     if len(refs_by_line) == 0:
-    #         refs_by_line.append(ref)
-    #     else:
-    #         already_added_ref = False
-    #         for R in ref_list:
-    #             if R.line_in_file == ref.line_in_file:
-    #                 already_added_ref = True
-    #         if not already_added_ref:
-    #             refs_by_line.append(ref)
 
     for ref in ref_list:
         action_id = action_id + 1
