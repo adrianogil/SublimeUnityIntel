@@ -51,6 +51,7 @@ def parse_yaml(filename, parse_data):
                 if last_line.find('--- !u!') != -1 and y.is_start_of_yaml_section(line):
                     current_yaml_section = y
                     current_yaml_section.on_yaml_section_start(last_line, i)
+                    break
         elif line.find("--- !u!") != -1:
             yaml_instances.append(current_yaml_section.on_yaml_section_finish())
             current_yaml_section = None

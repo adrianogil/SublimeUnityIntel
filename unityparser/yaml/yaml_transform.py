@@ -21,6 +21,7 @@ class YamlTransform(YamlElement):
         self.game_object = None
         self.children = []
         self.parent = None
+        self.is_rect_transform = False
 
     def add_child(self, child_transform):
         self.children.append(child_transform)
@@ -35,17 +36,30 @@ class TransformYamlParser:
         self.transform_go_id = ""
         self.transform_children_id = []
         self.found_transform_children_property = False
+        self.is_rect_transform = False
 
     def is_start_of_yaml_section(self, line):
         # print('TransformYamlParser::is_start_of_yaml_section - ' + str(line))
-        return line.find("Transform") != -1
+        if line.find("RectTransform") != -1:
+            self.is_rect_transform = True
+            return True
+
+        if line.find("Transform") != -1:
+            self.is_rect_transform = False
+            return True
+
+        return False
 
     def on_yaml_section_start(self, line, line_number):
-        self.current_transform_id = line[10:-1]
+        if self.is_rect_transform:
+            self.current_transform_id = line[12:-1]
+            print('TransformYamlParser::on_yaml_section_start - current_transform_id ' + self.current_transform_id)
+        else:
+            self.current_transform_id = line[10:-1]
         self.current_transform_line = line_number
         self.transform_go_id = ""
         self.transform_children_id = []
-        # print('TransformYamlParser::on_yaml_section_start - current_transform_id ' + self.current_transform_id)
+
 
     def parse_line(self, line, file_data):
         line_size = len(line)
@@ -80,4 +94,5 @@ class TransformYamlParser:
         transform.go_id = self.transform_go_id
         transform.definition_line = self.current_transform_line
         transform.children_ids = self.transform_children_id
+        transform.is_rect_transform = self.is_rect_transform
         return transform

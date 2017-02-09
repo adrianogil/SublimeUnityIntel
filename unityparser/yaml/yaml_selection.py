@@ -29,12 +29,16 @@ def get_gameobject_id_from(transform_id, file_data):
 class GameObjectModel:
     def __init__(self, selected_text, file_data):
         self.selected_text = selected_text
-        self.name = get_gameobject_name_from(selected_text, file_data)
+
         if is_gameobject_id(selected_text, file_data):
             self.go_id = self.selected_text
+            self.transform_id = get_transform_id_from(self.go_id, file_data)
         elif is_transform_id(selected_text, file_data):
             self.go_id = get_gameobject_id_from(selected_text, file_data)
-        self.transform_id = get_transform_id_from(selected_text, file_data)
+            self.transform_id = self.selected_text
+
+        self.name = get_gameobject_name_from(self.go_id, file_data)
+
 
     def get_id(self):
         return self.go_id
@@ -69,5 +73,6 @@ def show_view(view_factory, selected_text, rowcol):
         go_model = GameObjectModel(selected_text, file_data)
         view_factory.print_yaml_go_popup(go_model)
     elif is_transform_id(selected_text, file_data):
+        print('yaml_selection.show_view - trying to show transform popup')
         go_model = GameObjectModel(selected_text, file_data)
         view_factory.print_yaml_transform_popup(go_model)
