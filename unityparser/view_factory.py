@@ -21,6 +21,7 @@ import popup.yaml_transform_popup
 import popup.csharp_reference_popup
 import popup.csharp_class_summary_popup
 import popup.git_whatchanged_commit_popup
+import popup.git_summary_list_popup
 
 class ViewFactory:
     def __init__(self, view, symbolic_parser):
@@ -150,3 +151,5 @@ class ViewFactory:
         popup.csharp_class_summary_popup.print_popup(class_instance, self)
     def print_git_whatchanged_commit_popup(self, git_data):
         popup.git_whatchanged_commit_popup.print_popup(git_data, self)
+    def print_git_summary_list_popup(self, git_data):
+        popup.git_summary_list_popup.print_popup(git_data, self)

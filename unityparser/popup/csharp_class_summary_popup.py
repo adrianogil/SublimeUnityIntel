@@ -78,7 +78,16 @@ def print_popup(class_instance, view_factory):
             '">' + first_commit + "</a>"
         setup_git_whatchanged_popup(first_commit, action_id)
 
-
+        action_id = action_id + 1
+        class_info = class_info + '<br><a href="' + str(action_id) + \
+            '">See all changes in this file</a>'
+        def show_git_summary():
+            git_data = {}
+            git_data['popup_title'] = None
+            git_data['hash_list'] = git_hashes[:len(git_hashes)-1]
+            git_data['project_path'] = class_instance.project_path
+            view_factory.print_git_summary_list_popup(git_data)
+        view_factory.register_action(action_id, show_git_summary)
 
     except:
         print("Unexpected error:" + str(sys.exc_info()[0]))
