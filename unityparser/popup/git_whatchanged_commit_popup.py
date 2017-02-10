@@ -10,7 +10,21 @@ def print_popup(git_data, view_factory):
     git_info = git_info + '<b>What changed in Commit: ' + git_data['commit'] + '</b><br>'
 
     try:
-        git_files_cmd = 'cd "' + git_data['project_path'] + '" && git diff-tree --no-commit-id --name-status -r ' + git_data['commit']
+        go_to_path = 'cd "' + git_data['project_path'] + '" && '
+
+        git_title_cmd = go_to_path + "git --no-pager show -s --format='%s' " + git_data['commit']
+        git_title = subprocess.check_output(git_title_cmd, shell=True)
+        git_title = git_title.decode('UTF-8')
+
+        git_info = git_info + '<br>' + git_title + '<br>'
+
+        git_message_cmd = go_to_path + "git --no-pager show -s --format='%b' " + git_data['commit']
+        git_message = subprocess.check_output(git_message_cmd, shell=True)
+        git_message = git_message.decode('UTF-8')
+
+        git_info = git_info + '<br>' + git_message + '<br>'
+
+        git_files_cmd = go_to_path + 'git diff-tree --no-commit-id --name-status -r ' + git_data['commit']
         git_files_output = subprocess.check_output(git_files_cmd, shell=True)
 
         git_files_output = git_files_output.decode('UTF-8')
