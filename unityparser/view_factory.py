@@ -20,6 +20,7 @@ import popup.yaml_gameobject_popup
 import popup.yaml_transform_popup
 import popup.csharp_reference_popup
 import popup.csharp_class_summary_popup
+import popup.git_whatchanged_commit_popup
 
 class ViewFactory:
     def __init__(self, view, symbolic_parser):
@@ -34,6 +35,7 @@ class ViewFactory:
             if action_id in self.view_actions:
                 self.view_actions[action_id]()
         self.selection_action = load_action
+        self.last_popup_action = None
 
     def clear_actions(self):
         self.view_actions = {}
@@ -146,3 +148,5 @@ class ViewFactory:
         popup.yaml_transform_popup.print_popup(go_model, self)
     def print_csharp_class_summary_popup(self, class_instance):
         popup.csharp_class_summary_popup.print_popup(class_instance, self)
+    def print_git_whatchanged_commit_popup(self, git_data):
+        popup.git_whatchanged_commit_popup.print_popup(git_data, self)

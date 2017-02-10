@@ -1,3 +1,6 @@
+import subprocess
+import sys
+
 def print_popup(class_instance, view_factory):
     view_factory.clear_actions()
 
@@ -46,6 +49,43 @@ def print_popup(class_instance, view_factory):
             view_factory.print_csharp_ref_popup(class_instance)
         action = show_csharp_ref_popup
         view_factory.register_action(action_id, action)
+
+    git_hashes_cmd = 'cd "' + class_instance.project_path + '" && git log --oneline ' + class_instance.file_name + '| cut -d " " -f 1'
+    try:
+        git_hashes_output = subprocess.check_output(git_hashes_cmd, shell=True)
+        git_hashes_output = git_hashes_output.decode('UTF-8')
+        git_hashes = git_hashes_output.split('\n')
+        # print(git_hashes[0])
+        # print(git_hashes[len(git_hashes)-2])
+        last_updated_commit = git_hashes[0]
+        first_commit = git_hashes[len(git_hashes)-2]
+
+        def setup_git_whatchanged_popup(commit, git_action_id):
+            def show_git_whatchanged():
+                git_data = {}
+                git_data['commit'] = commit
+                git_data['project_path'] = class_instance.project_path
+                view_factory.print_git_whatchanged_commit_popup(git_data)
+            view_factory.register_action(git_action_id, show_git_whatchanged)
+
+        action_id = action_id + 1
+        class_info = class_info + '<br>Last updated at commit: <a href="' + str(action_id) + \
+                    '">' + last_updated_commit + "</a>"
+        setup_git_whatchanged_popup(last_updated_commit, action_id)
+
+        action_id = action_id + 1
+        class_info = class_info + '<br>Created at commit: <a href="' + str(action_id) + \
+            '">' + first_commit + "</a>"
+        setup_git_whatchanged_popup(first_commit, action_id)
+
+
+
+    except:
+        print("Unexpected error:" + str(sys.exc_info()[0]))
+
+    def back_to_this_popup():
+        print_popup(class_instance, view_factory)
+    view_factory.last_popup_action = back_to_this_popup
 
     # print(class_info)
     view_factory.show_popup(class_info)
