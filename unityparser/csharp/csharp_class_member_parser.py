@@ -102,6 +102,9 @@ def parse_tokens(tokens_data, class_region, class_name, class_instance):
         if expected_default_value and tokens[t] == ';':
             # print('\t +Member ' + member_name + " with type " + member_type + \
                 # " with default value " + member_default_value)
+
+            create_field_instance(t)
+
             expected_default_value = False
             member_default_value = ''
             t = t + 1
