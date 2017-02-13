@@ -13,7 +13,7 @@ def print_popup(git_data, view_factory):
         git_info = git_info + git_data['popup_title']
         git_data['popup_title_action']()
 
-    git_info = git_info + '<br>'
+    git_info = git_info + '<br><br>' + str(len(git_data['hash_list'])) + ' changes registered<br>'
 
     try:
         go_to_path = 'cd "' + git_data['project_path'] + '" && '
