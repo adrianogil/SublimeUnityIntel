@@ -25,7 +25,8 @@ class CSharpMethodScope():
     def add_var(self, var_instance):
         if var_instance != None:
             if var_instance.var_type != None:
-                if var_instance.var_type.element_type == 'class':
+                if hasattr(var_instance.var_type, 'element_type') and \
+                   var_instance.var_type.element_type == 'class':
                     ref = CSharpReference()
                     ref.reference_object = var_instance
                     ref.line_in_file = var_instance.line_in_file+1

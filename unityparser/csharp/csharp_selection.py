@@ -8,13 +8,13 @@ def show_view(view_factory, selected_text, rowcol):
     print('parser.py::print_selection_info - received ' + str(type(semantic_object)) + " ") # + \
         # str(type( csharp.csharp_class_method_parser.CSharpClassMethod("",[],[]))) + \
         # str(isinstance(semantic_object, type( charp.csharp_class_method_parser.CSharpClassMethod("",[],[])))))
-    if semantic_object == None:
+    if semantic_object == None or not hasattr(semantic_object, 'element_type'):
         # print('parser.py::print_selection_info - received None ')
         return
     if semantic_object.element_type == "class":
         view_factory.print_csharp_class_summary_popup(semantic_object)
     elif semantic_object.element_type == "class-method":
-        view_factory.print_csharp_method_popup(semantic_object)
+        view_factory.print_csharp_method_summary_popup(semantic_object)
     elif semantic_object.element_type == "class_field":
         # print('parser.py::print_selection_info - show class_info ' + semantic_object.class_name)
         semantic_object.print_element_info(view_factory)

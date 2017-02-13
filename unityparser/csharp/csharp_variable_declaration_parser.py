@@ -90,7 +90,7 @@ def parse_tokens(tokens_data, parse_region, scope_parent_instance, symbols):
                 create_var_init_on_pos(t)
             elif tokens[t+2] == ',':
                 expect_new_declaration = True
-                create_var_init(last_type, tokens[t+1])
+                create_var_init(last_type, tokens[t+1], t)
             else:
                 expect_init = True
                 concat_var_init = ''

@@ -109,7 +109,7 @@ class CSharpClassMethod(CSharpElement, CSharpMethodScope):
         return 'Debug.Log(' + debug_message + ');'
 
     def parse_symbols(self, symbols):
-        print('Parse symbol on method ' + self.method_name)
+        # print('Parse symbol on method ' + self.method_name)
         csharp_class_method_scope_parser.parse_tokens(self.tokens_body, \
                     (1, len(self.tokens_body['tokens'])-1), self, symbols, self)
 

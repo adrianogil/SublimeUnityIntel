@@ -180,6 +180,24 @@ def parse_tokens(tokens_data, class_region, class_name, class_instance):
                 create_field_instance(t+3)
                 # print('\t +Member ' + member_name + " with type " + member_type)
             t = t + 4
+        elif (t+2) < end_region and \
+             not isinstance(semantic_tokens[t], CSharpElement) and \
+             not isinstance(semantic_tokens[t+1], CSharpElement) and \
+             not isinstance(semantic_tokens[t+2], CSharpElement) and \
+             (tokens[t+2] == ';' or tokens[t+2] == '='):
+            member_start_pos = t;
+            member_access_level = 'default'
+            member_is_static = False
+            member_type = tokens[t]
+            member_name = tokens[t+1]
+            number_of_members = number_of_members + 1
+            if tokens[t+2] == '=':
+                expected_default_value = True
+            else:
+                expected_default_value = False
+                create_field_instance(t+2)
+                # print('\t +Member ' + member_name + " with type " + member_type)
+            t = t + 3
         else:
             t = t + 1
 

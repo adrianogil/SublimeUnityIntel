@@ -102,10 +102,10 @@ class SymbolicParser:
         for s in csharp_symbols:
             c = csharp_symbols[s]
             if self.is_monobehavior(c):
-                print(c.class_name + ' is monobehaviour')
+                # print(c.class_name + ' is monobehaviour')
                 for m in c.methods_data:
                     if self.is_behavior_event(m.method_name):
-                        print('Added ' + c.class_name + ' to event ' + m.method_name)
+                        # print('Added ' + c.class_name + ' to event ' + m.method_name)
                         event_list = behaviors_events[m.method_name]
                         event_list.append(m)
                         behaviors_events[m.method_name] = event_list

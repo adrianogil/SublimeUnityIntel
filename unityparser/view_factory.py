@@ -18,11 +18,10 @@ from csharp_reference import CSharpReference
 import popup.yaml_reference_popup
 import popup.yaml_gameobject_popup
 import popup.yaml_transform_popup
-
 import popup.csharp_reference_popup
 import popup.csharp_class_summary_popup
-import popup.csharp_method_popup
-
+import popup.csharp_method_summary_popup
+import popup.csharp_class_inherits_diagram_popup
 import popup.git_whatchanged_commit_popup
 import popup.git_summary_list_popup
 
@@ -150,10 +149,14 @@ class ViewFactory:
         popup.yaml_gameobject_popup.print_popup(go_model, self)
     def print_yaml_transform_popup(self, go_model):
         popup.yaml_transform_popup.print_popup(go_model, self)
+
     def print_csharp_class_summary_popup(self, class_instance):
         popup.csharp_class_summary_popup.print_popup(class_instance, self)
-    def print_csharp_method_popup(self, method_instance):
-        popup.csharp_method_popup.print_popup(method_instance, self)
+    def print_csharp_method_summary_popup(self, method_instance):
+        popup.csharp_method_summary_popup.print_popup(method_instance, self)
+    def print_csharp_class_inherits_diagram_popup(self, class_instance):
+        popup.csharp_class_inherits_diagram_popup.print_popup(class_instance, self)
+
     def print_git_whatchanged_commit_popup(self, git_data):
         popup.git_whatchanged_commit_popup.print_popup(git_data, self)
     def print_git_summary_list_popup(self, git_data):
