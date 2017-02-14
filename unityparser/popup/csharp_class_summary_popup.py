@@ -92,6 +92,12 @@ def print_popup(class_instance, view_factory):
     except:
         print("Unexpected error:" + str(sys.exc_info()[0]))
 
+    action_id = action_id + 1
+    class_info = class_info + '<br><a href="' + str(action_id) + '">Show Inheritage diagram</a>'
+    def show_diagram():
+        view_factory.print_csharp_class_inherits_diagram_popup(class_instance)
+    view_factory.register_action(action_id, show_diagram)
+
     def back_to_this_popup():
         print_popup(class_instance, view_factory)
     view_factory.last_popup_action = back_to_this_popup
