@@ -164,6 +164,27 @@ class CSharpClass(CSharpElement):
         new_class_instance.inherited_by = self.inherited_by
         new_class_instance.referenced = self.referenced
 
+        for m1 in new_class_instance.methods_data:
+            for m2 in self.methods_data:
+                if m2.method_name == m1.method_name and \
+                   m2.method_type == m1.method_type and \
+                   m2.method_access_level == m1.method_access_level and \
+                   m2.is_static == m1.is_static and \
+                   len(m2.params) == len(m1.params):
+                    same_method = False
+                    for p in range(0, len(m2.params)):
+                        if m2.params[p].param_name != m1.params[p].param_name or \
+                           m2.params[p].param_type != m1.params[p].param_type or \
+                           m2.params[p].param_default_value != m2.params[p].param_default_value:
+                           same_method = False
+                           break
+                        else:
+                            same_method = True
+                    if same_method:
+                        m1.variable_instances = m2.variable_instances
+                        m1.scope_children = m2.scope_children
+                
+
 def  parse_tokens(tokens_data):
     tokens = tokens_data['tokens']
     semantic_tokens = tokens_data['semantic_tokens']

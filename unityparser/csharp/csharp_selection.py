@@ -13,8 +13,9 @@ def show_view(view_factory, selected_text, rowcol):
         return
     if semantic_object.element_type == "class":
         view_factory.print_csharp_class_summary_popup(semantic_object)
-    elif semantic_object.element_type == "class-method" or \
-       semantic_object.element_type == "class_field":
+    elif semantic_object.element_type == "class-method":
+        view_factory.print_csharp_method_popup(semantic_object)
+    elif semantic_object.element_type == "class_field":
         # print('parser.py::print_selection_info - show class_info ' + semantic_object.class_name)
         semantic_object.print_element_info(view_factory)
         # view_factory.get_showpopup()(semantic_object.print_element_info(), view_factory.get_goto_line())

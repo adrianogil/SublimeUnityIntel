@@ -19,9 +19,14 @@ import csharp_type
 import parser_utils
 
 class TokenParser:
+
     def parse_file(self, csharp_file):
         with codecs.open(csharp_file, encoding="utf-8-sig", errors='ignore') as f:
             content = f.readlines()
+
+        return self.parse_content(content)        
+
+    def parse_content(self, content):
         total_lines = len(content)
 
         #tokenize
