@@ -8,6 +8,13 @@ def print_popup(method_instance, view_factory):
     action = view_factory.get_goto_line_action(method_instance.line_in_file)
     view_factory.register_action(action_id, action)
 
+    def show_changes():
+        show_changes_on_method(method_instance)
+
+    action_id = action_id + 1
+    method_info = method_info + '<br><a href="' + str(action_id) + '">Show git changes at Method</a><br>'
+    view_factory.register_action(action_id, show_changes)
+
     method_info = method_info + '<br>'
 
     def open_last_popup():
@@ -15,6 +22,22 @@ def print_popup(method_instance, view_factory):
     view_factory.last_popup_action = open_last_popup
 
     print_scope_popup(method_instance, view_factory, method_info, action_id)
+
+def show_changes_on_method(method_instance):
+
+    output = 'Test'
+
+    scratch_file = self.get_window().new_file()
+    scratch_file.set_name('Git changes')
+    scratch_file.set_scratch(True)
+    scratch_file.set_read_only(True)
+    scratch_file.settings().set('word_wrap', False)
+    output_file.set_syntax_file("Packages/Diff/Diff.tmLanguage")
+        args = {
+            'output': output,
+            'clear': False
+        }
+    output_file.run_command('git_scratch_output', args)
 
 def print_scope_popup(scope_instance, view_factory, scope_info = '', action_id = 0):
 
@@ -33,7 +56,7 @@ def print_scope_popup(scope_instance, view_factory, scope_info = '', action_id =
     for s in scope_instance.scope_children:
         action_id = action_id + 1
         scope_info = scope_info + "<br><a href='" + str(action_id) + "'> Sub-scope " + str(scope_index) + "</a>"
-        scope_index = scope_index + 1 
+        scope_index = scope_index + 1
 
         def open_scope():
             print_scope_popup(s, view_factory)
