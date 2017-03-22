@@ -46,7 +46,6 @@ def show_changes_on_method(method_instance, view_factory):
     git_changes = subprocess.check_output(git_changes_cmd, shell=True)
     git_changes = git_changes.decode('UTF-8')
 
-
     scratch_file = view_factory.view.window().new_file()
     scratch_file.set_name('Git changes')
     scratch_file.set_scratch(True)

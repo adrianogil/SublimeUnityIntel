@@ -29,6 +29,10 @@ def print_popup(git_data, view_factory):
             git_date = subprocess.check_output(git_date_cmd, shell=True)
             git_date = git_date.decode('UTF-8')
 
+            git_author_cmd = go_to_path + "git --no-pager show -s --format='%aN' " + git_hash_list[i]
+            git_author = subprocess.check_output(git_author_cmd, shell=True)
+            git_author = git_author.decode('UTF-8')
+
             def setup_git_whatchanged_popup(commit, git_action_id, project_path):
                 def show_git_whatchanged():
                     git_commit_data = {}
@@ -38,7 +42,8 @@ def print_popup(git_data, view_factory):
                 view_factory.register_action(git_action_id, show_git_whatchanged)
 
             action_id = action_id + 1
-            git_info = git_info + '<br><br>' + git_date +  '<br> <a href="' + str(action_id) + '">' + git_hash_list[i] + ': ' + git_title + '</a>'
+            git_info = git_info + '<br><br>' + git_date + ' [' + git_author + \
+                        ']<br> <a href="' + str(action_id) + '">' + git_hash_list[i] + ': ' + git_title + '</a>'
             setup_git_whatchanged_popup(git_hash_list[i], action_id, git_data['project_path'])
 
     except:
