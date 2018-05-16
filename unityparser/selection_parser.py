@@ -15,7 +15,7 @@ if __csharp_path__ not in sys.path:
 if __yaml_path__ not in sys.path:
     sys.path.insert(0, __yaml_path__)
 
-from yaml import yaml_selection
+# from yaml import yaml_selection
 from csharp import csharp_selection
 
 from view_factory import ViewFactory
@@ -26,9 +26,10 @@ def handle_selection(view, symbolic_parser):
     file = view.file_name()
 
     show_view_method = None
-    if file.lower().endswith(('.unity','.prefab','.asset', '.meta')):
-        show_view_method = yaml_selection.show_view
-    elif file.lower().endswith('.cs'):
+    # if file.lower().endswith(('.unity','.prefab','.asset', '.meta')):
+    #     show_view_method = yaml_selection.show_view
+
+    if file.lower().endswith('.cs'):
         show_view_method = csharp_selection.show_view
     else:
         return
