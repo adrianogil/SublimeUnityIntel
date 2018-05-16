@@ -12,7 +12,7 @@ def print_popup(class_instance, view_factory):
         graphviz_cmd = graphviz_cmd + 'g1.node("' + B + '"); '
         graphviz_cmd = graphviz_cmd + 'g1.edge("' + A + '", "' + B + '"); '
         graphviz_cmd = graphviz_cmd + 'print(g1.source); '
-        graphviz_cmd = graphviz_cmd + '\' > test.dot && /usr/local/bin/dot -Tpng test.dot -o /Users/SIDIA/tmp_diagram.png'
+        graphviz_cmd = graphviz_cmd + '\' > test.dot && /usr/local/bin/dot -Tpng test.dot -o /Users/gil/tmp_diagram.png'
 
         graphviz_cmd_output = subprocess.check_output(graphviz_cmd, stderr=subprocess.STDOUT, shell=True)
 
@@ -22,9 +22,9 @@ def print_popup(class_instance, view_factory):
         # g1.node('A')
         # g1.node('B')
         # g1.edge('A', 'B')
-        # g1.render(filename='/Users/SIDIA/Library/Application Support/Sublime Text 3/Packages/SublimeUnityIntel/tmp_diagram.png')
+        # g1.render(filename='/Users/gil/Library/Application Support/Sublime Text 3/Packages/SublimeUnityIntel/tmp_diagram.png')
 
-        html = '<b>Inheritage Diagram></b><br><img src="file://Users/SIDIA/tmp_diagram.png" style="width:150px;height:200px">'
+        html = '<b>Inheritage Diagram></b><br><img src="file://Users/gil/tmp_diagram.png" style="width:150px;height:200px">'
 
         view_factory.show_popup(html)
     except subprocess.CalledProcessError as e:
