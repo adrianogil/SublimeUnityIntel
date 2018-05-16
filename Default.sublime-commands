@@ -1,5 +1,8 @@
 [
     {   "caption": "UnityIntel: Show classes attached to MonoBehaviour events",
         "command": "unity_behaviors_events"
+    },
+    {   "caption": "UnityIntel: Copy interface from Class",
+        "command": "unity_interface_from_class"
     }
 ]

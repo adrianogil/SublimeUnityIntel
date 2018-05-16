@@ -292,6 +292,36 @@ class SymbolicParser:
         else:
             return ""
 
+    def create_interface_from_class(self, file, rowcol):
+        file_data = self.get_symbolic_data()['parse']['by_files'][file]
+        semantic_object = self.get_semantic_token(file, rowcol)
+
+        if semantic_object == None:
+            return ''
+
+        class_obj = None
+
+        if isinstance(semantic_object, CSharpClassMethod):
+            class_obj = semantic_object.class_object
+        elif isinstance(semantic_object, CSharpClass):
+            class_obj = semantic_object
+        if class_obj == None:
+            return ""
+
+        interface_str = ""
+
+        for mobj in class_obj.methods_data:
+
+            if mobj.method_name == "constructor":
+                interface_str = interface_str + class_obj.class_name + "()"
+            else:
+                interface_str = interface_str + mobj.method_type + " " + mobj.method_name + "()"
+
+            interface_str = interface_str + '\n'
+
+        return interface_str
+
+
     def print_debuglog(self, file, rowcol):
         file_data = self.get_symbolic_data()['parse']['by_files'][file]
         semantic_object = self.get_semantic_token(file, rowcol)

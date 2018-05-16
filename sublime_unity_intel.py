@@ -107,6 +107,23 @@ class SelectTextOnPosition(sublime_plugin.TextCommand):
         self.view.sel().clear()
         self.view.sel().add(target_region)
 
+class UnityInterfaceFromClassCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        print('Running command "DebugLog"')
+        view = self.view
+        file = view.file_name()
+
+
+        if file.lower().endswith(('.cs')):
+            debug_log = ""
+            regions = view.sel()
+            if len(regions) == 1:
+                main_region = regions[0]
+                rowcol = view.rowcol(main_region.begin())
+                class_interface = symbolic_parser.create_interface_from_class(file, rowcol)
+                sublime.set_clipboard(class_interface)
+
+
 class SmartdebugCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         print('Running command "DebugLog"')
