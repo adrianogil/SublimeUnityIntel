@@ -2,6 +2,8 @@ import os
 import fnmatch
 from os.path import join
 
+import codecs
+
 def is_escaped_string_element(line, j):
   if line[j] != '\'' and line[j] != '\"':
     return False
@@ -23,10 +25,14 @@ def parse_project(project_path, content_data, file_extension, parse_function, re
     for root, subFolders, files in os.walk(project_path):
         for filename in fnmatch.filter(files, file_extension):
             content = ''
-            if read_content:
-                with open(join(root, filename)) as f:
-                    content = f.readlines()
-            content_data = parse_function(content, content_data, root, filename, project_path)
+            try:
+              if read_content:
+                  with codecs.open(join(root, filename), 'r', encoding='utf-8') as f:
+                      content = f.readlines()
+              content_data = parse_function(content, content_data, root, filename, project_path)
+            except:
+              print('sublime_unity_intel - parser_utils - error')
+
     return content_data
 
 def is_valid_unity_project_path(project_path):

@@ -2,6 +2,7 @@ import os, sys
 import yaml_parser
 from os.path import join
 
+
 def is_guid(text, yaml_data):
     return text in yaml_data['files_by_guid']
 
@@ -68,7 +69,7 @@ def show_view(view_factory, selected_text, rowcol):
         file = get_file_path_from(selected_text, yaml_data)
         action = view_factory.get_open_file_action(file)
         view_factory.register_action(action_id, action)
-        view_factory.show_popup(html)
+        view_factory.show_popup(html, width=500)
     elif is_gameobject_id(selected_text, file_data):
         go_model = GameObjectModel(selected_text, file_data)
         view_factory.print_yaml_go_popup(go_model)

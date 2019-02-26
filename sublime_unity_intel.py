@@ -129,8 +129,6 @@ class SmartdebugCommand(sublime_plugin.TextCommand):
         print('Running command "DebugLog"')
         view = self.view
         file = view.file_name()
-
-
         if file.lower().endswith(('.cs')):
             debug_log = ""
             regions = view.sel()
@@ -150,6 +148,7 @@ class SmartdebugCommand(sublime_plugin.TextCommand):
                         variables.append(selected_text)
                 rowcol = view.rowcol(main_region.begin())
                 debug_log = symbolic_parser.print_debuglog_with_vars(file, rowcol, variables)
+            print('Running command "DebugLog" - ' + debug_log)
             view.replace(edit, main_region, debug_log)
 
 class UnityBehaviorsEvents(sublime_plugin.TextCommand):
